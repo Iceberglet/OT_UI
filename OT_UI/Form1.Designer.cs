@@ -29,13 +29,14 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
@@ -120,6 +121,7 @@
             // 
             // graph_rank
             // 
+            chartArea1.AlignWithChartArea = "ChartArea2";
             chartArea1.AxisX.LineColor = System.Drawing.Color.Transparent;
             chartArea1.AxisX.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
             chartArea1.AxisX.LineWidth = 0;
@@ -128,9 +130,26 @@
             chartArea1.AxisY.LineColor = System.Drawing.Color.Transparent;
             chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
             chartArea1.AxisY2.LineColor = System.Drawing.Color.Transparent;
+            chartArea1.BackColor = System.Drawing.Color.Transparent;
             chartArea1.BorderColor = System.Drawing.Color.Transparent;
             chartArea1.Name = "ChartArea1";
+            chartArea1.Position.Auto = false;
+            chartArea1.Position.Height = 91F;
+            chartArea1.Position.Width = 73.23495F;
+            chartArea1.Position.X = 3F;
+            chartArea1.Position.Y = 9F;
+            chartArea2.AlignWithChartArea = "ChartArea1";
+            chartArea2.AxisX.MajorGrid.LineColor = System.Drawing.Color.Transparent;
+            chartArea2.AxisY.MajorGrid.LineColor = System.Drawing.Color.Transparent;
+            chartArea2.BackColor = System.Drawing.Color.Transparent;
+            chartArea2.Name = "ChartArea2";
+            chartArea2.Position.Auto = false;
+            chartArea2.Position.Height = 91F;
+            chartArea2.Position.Width = 73.23495F;
+            chartArea2.Position.X = 3F;
+            chartArea2.Position.Y = 9F;
             this.graph_rank.ChartAreas.Add(chartArea1);
+            this.graph_rank.ChartAreas.Add(chartArea2);
             legend1.Name = "Legend1";
             this.graph_rank.Legends.Add(legend1);
             this.graph_rank.Location = new System.Drawing.Point(0, 0);
@@ -140,12 +159,12 @@
             series1.Color = System.Drawing.Color.Gray;
             series1.Legend = "Legend1";
             series1.Name = "Ranks";
-            series2.ChartArea = "ChartArea1";
+            series2.ChartArea = "ChartArea2";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series2.Color = System.Drawing.Color.Red;
             series2.Legend = "Legend1";
             series2.Name = "LeftTauValue";
-            series3.ChartArea = "ChartArea1";
+            series3.ChartArea = "ChartArea2";
             series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series3.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             series3.Legend = "Legend1";
@@ -172,8 +191,8 @@
             // 
             // graph_average
             // 
-            chartArea2.Name = "ChartArea1";
-            this.graph_average.ChartAreas.Add(chartArea2);
+            chartArea3.Name = "ChartArea1";
+            this.graph_average.ChartAreas.Add(chartArea3);
             legend2.Name = "Legend1";
             this.graph_average.Legends.Add(legend2);
             this.graph_average.Location = new System.Drawing.Point(3, 0);

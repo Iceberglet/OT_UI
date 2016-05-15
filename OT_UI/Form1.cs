@@ -52,7 +52,6 @@ namespace OT_UI
             if (!radio_filter_none.Checked)
                 return;
             else Controller.selected_filter = Controller.sl_Filter.None;
-            //System.Windows.Forms.MessageBox.Show("Filtering! " + Controller.selected_filter);
         }
 
         private void radio_filter_dominance_Checked(object sender, EventArgs e)
@@ -60,7 +59,6 @@ namespace OT_UI
             if (!radio_filter_dominance.Checked)
                 return;
             else Controller.selected_filter = Controller.sl_Filter.Domi;
-            //System.Windows.Forms.MessageBox.Show("Filtering! " + Controller.selected_filter);
         }
 
         private void radio_filter_pincer_Checked(object sender, EventArgs e)
@@ -103,7 +101,6 @@ namespace OT_UI
         private void button_speed_initialize(object sender, EventArgs e)
         {
             Controller.Initialize(this, graph_rank, graph_average);
-            //MessageBox.Show("");
         }
 
         /*

@@ -108,6 +108,26 @@ namespace OT_UI
                 else
                     ranks.Points.Add(dp);
             }
+            
+            //Tau value lines
+            if(otvs.LeftTaus.Count > 0 && otvs.RightTaus.Count > 0)
+            {
+                //System.Windows.Forms.MessageBox.Show("left: " + otvs.LeftTaus.Count  + "right: " + otvs.RightTaus.Count);
+                Series left = graph_rank.Series.Where(x => x.Name == "LeftTauValue").ToList().First();
+                left.Points.Clear();
+                Series right = graph_rank.Series.Where(x => x.Name == "RightTauValue").ToList().First();
+                right.Points.Clear();
+                foreach (var i in Enumerable.Range(0, otvs.Solutions.Count))
+                {
+                    if (!otvs.SampledIndices.Contains(i))
+                    {
+                        DataPoint l = new DataPoint(otvs.Solutions[i].LFRank, - otvs.LeftTaus[i]);
+                        DataPoint r = new DataPoint(otvs.Solutions[i].LFRank, otvs.RightTaus[i]);
+                        left.Points.Add(l);
+                        right.Points.Add(r);
+                    }
+                }
+            }
         }
         
     }

@@ -40,6 +40,8 @@ namespace OT_UI
 
         public OTVS(List<Solution> solutions, SamplingScheme samplingScheme = SamplingScheme.Binary, int seed = 0)
         {
+            LeftTaus = new Dictionary<int, double>();
+            RightTaus = new Dictionary<int, double>();
             RS = new Random(seed);
             Sampling = samplingScheme;
             Solutions = solutions.OrderBy(s => s.LFValue).ToList();
@@ -51,7 +53,6 @@ namespace OT_UI
             filter = Controller.selected_filter;
             kendall = Controller.selected_kendall;
             strategy = Controller.selected_strategy;
-            System.Windows.Forms.MessageBox.Show("Filtering! " + filter);
 
         }
 
@@ -161,7 +162,6 @@ namespace OT_UI
                     }
                     return res;
                 default:
-                    Console.WriteLine("Incorrect filtering method");
                     return null;
             }
         }
@@ -246,8 +246,7 @@ namespace OT_UI
             for (int i = 1; i < lfOrder.Count; i++)
                 for (int j = 0; j < i; j++)
                     numer = numer + Math.Sign(lfOrder[i] - lfOrder[j]);
-            //return 1.0 * numer / lfOrder.Count / (lfOrder.Count - 1) * 2;
-            return numer;
+            return 1.0 * numer / lfOrder.Count / (lfOrder.Count - 1) * 2;
         }
     }
 }
