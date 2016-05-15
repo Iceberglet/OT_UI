@@ -176,11 +176,17 @@ namespace OT_UI
             //For each candidate solution we calculate its L and R tau values
             Func<int, double> twoSideKendallProba = i =>
             {
-                List<int> left = new int[] { i }.Concat(partial.Where(j => j < i)).ToList();
-                List<int> right = new int[] { i }.Concat(partial.Where(j => j > i)).ToList();
+                List<int> left = partial.Where(j => j < i).ToList();
+                List<int> right = partial.Where(j => j > i).ToList();
+                left.Sort();
+                right.Sort();
+                left = left.Select(x => Solutions[x].HFRank).ToList();
+                right = right.Select(x => Solutions[x].HFRank).ToList();
+
+
                 LeftTaus.Add(i, KendallRank(left));
                 RightTaus.Add(i, KendallRank(right));
-                return Math.Exp((- LeftTaus[i] + RightTaus[i])*5);
+                return Math.Exp((- LeftTaus[i] + RightTaus[i])*3);
                 //return (LeftTaus[i] *left.Count - RightTaus[i]* right.Count) / 1.0 / (left.Count + right.Count);
             };
 
@@ -226,6 +232,11 @@ namespace OT_UI
                         target -= candidateProba.Last();
                         candidateProba.RemoveAt(candidateProba.Count - 1);
                     }
+                    int k = candidates.Last();
+                    /*
+                    System.Windows.Forms.MessageBox.Show(String.Join(",",
+                    new int[] { k }.Concat(partial.Where(j => j < k)).ToList()) + " ** " +
+                    String.Join(",", new int[] { k }.Concat(partial.Where(j => j > k)).ToList()));*/
                     return candidates.Last();
                 default: return -1;
             }
