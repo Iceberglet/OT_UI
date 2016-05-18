@@ -184,8 +184,8 @@ namespace OT_UI
                 right = right.Select(x => Solutions[x].HFRank).ToList();
 
 
-                LeftTaus.Add(i, KendallRank(left));
-                RightTaus.Add(i, KendallRank(right));
+                LeftTaus.Add(i, Utility.KendallRank(left, true));
+                RightTaus.Add(i, Utility.KendallRank(right, true));
                 return Math.Exp((- LeftTaus[i] + RightTaus[i])*3);
                 //return (LeftTaus[i] *left.Count - RightTaus[i]* right.Count) / 1.0 / (left.Count + right.Count);
             };
@@ -245,19 +245,6 @@ namespace OT_UI
         public Tuple<double,double> KendallDistances
         {
             get { return new Tuple<double, double>(-LeftTaus[SampledIndices.Last()], RightTaus[SampledIndices.Last()]); }
-        }
-
-        // A simplified version from 
-        // https://en.wikipedia.org/wiki/Kendall_rank_correlation_coefficient
-        // Returns a value between [-n(n-1)/2, n(n-1)/2]
-        static double KendallRank(List<int> lfOrder)
-        {
-            if (lfOrder.Count < 2) return 1;
-            int numer = 0;
-            for (int i = 1; i < lfOrder.Count; i++)
-                for (int j = 0; j < i; j++)
-                    numer = numer + Math.Sign(lfOrder[i] - lfOrder[j]);
-            return 1.0 * numer / lfOrder.Count / (lfOrder.Count - 1) * 2;
         }
     }
 }
