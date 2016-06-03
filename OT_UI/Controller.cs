@@ -35,11 +35,19 @@ namespace OT_UI
             //set up rank graph
             graph_rank = graph_r;
             graph_avg = graph_a;
-            var solutions = Utility.Xu2014(g: 3);
+            var solutions = Utility.localMin();
             otvs = new OTVS(solutions);
             updateRankPoints();
             
-
+            var sol1 = Utility.Xu2014(1);
+            var sol2 = Utility.Xu2014(2);
+            var sol3 = Utility.Xu2014(3);
+            var res = "";
+            res += Utility.hasMinKendallAtOptimum(solutions) + "\n";
+            res += Utility.hasMinKendallAtOptimum(sol1) + "\n";
+            res += Utility.hasMinKendallAtOptimum(sol2) + "\n";
+            res += Utility.hasMinKendallAtOptimum(sol3) + "\n";
+            System.Windows.Forms.MessageBox.Show(res);
             /*
             iterator = new Thread(Iterate);
             iterator.Start();*/
