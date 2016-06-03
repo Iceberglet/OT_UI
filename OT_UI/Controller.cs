@@ -117,14 +117,18 @@ namespace OT_UI
                 left.Points.Clear();
                 Series right = graph_rank.Series.Where(x => x.Name == "RightTauValue").ToList().First();
                 right.Points.Clear();
+                Series proba = graph_rank.Series.Where(x => x.Name == "ProbaValue").ToList().First();
+                proba.Points.Clear();
                 foreach (var i in Enumerable.Range(0, otvs.Solutions.Count))
                 {
                     if (!otvs.SampledIndices.Contains(i))
                     {
                         DataPoint l = new DataPoint(otvs.Solutions[i].LFRank, - otvs.LeftTaus[i]);
                         DataPoint r = new DataPoint(otvs.Solutions[i].LFRank, otvs.RightTaus[i]);
+                        DataPoint p = new DataPoint(otvs.Solutions[i].LFRank, otvs.ProbaValues[i]);
                         left.Points.Add(l);
                         right.Points.Add(r);
+                        proba.Points.Add(p);
                     }
                 }
             }

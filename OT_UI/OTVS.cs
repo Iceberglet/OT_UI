@@ -32,6 +32,7 @@ namespace OT_UI
 
         public Dictionary<int, double> LeftTaus { get; private set; }
         public Dictionary<int, double> RightTaus { get; private set; }
+        public Dictionary<int, double> ProbaValues { get; private set; }
 
         //Decided once constructor initializes them
         private readonly Controller.sl_Filter filter;
@@ -172,6 +173,7 @@ namespace OT_UI
         {
             LeftTaus = new Dictionary<int, double>();
             RightTaus = new Dictionary<int, double>();
+            ProbaValues = new Dictionary<int, double>();
 
             //For each candidate solution we calculate its L and R tau values
             Func<int, double> twoSideKendallProba = i =>
@@ -186,7 +188,8 @@ namespace OT_UI
 
                 LeftTaus.Add(i, KendallRank(left));
                 RightTaus.Add(i, KendallRank(right));
-                return Math.Exp((- LeftTaus[i] + RightTaus[i])*3);
+                ProbaValues.Add(i, Math.Exp((-LeftTaus[i] + RightTaus[i]) * 5));
+                return ProbaValues[i];
                 //return (LeftTaus[i] *left.Count - RightTaus[i]* right.Count) / 1.0 / (left.Count + right.Count);
             };
 
@@ -241,22 +244,23 @@ namespace OT_UI
                 default: return -1;
             }
         }
-
+        /*
         public Tuple<double,double> KendallDistances
         {
             get { return new Tuple<double, double>(-LeftTaus[SampledIndices.Last()], RightTaus[SampledIndices.Last()]); }
         }
-
+        */
         // A simplified version from 
         // https://en.wikipedia.org/wiki/Kendall_rank_correlation_coefficient
         // Returns a value between [-n(n-1)/2, n(n-1)/2]
         static double KendallRank(List<int> lfOrder)
         {
-            if (lfOrder.Count < 2) return 1;
+            if (lfOrder.Count < 2)
+                return 0;
             int numer = 0;
-            for (int i = 1; i < lfOrder.Count; i++)
-                for (int j = 0; j < i; j++)
-                    numer = numer + Math.Sign(lfOrder[i] - lfOrder[j]);
+            for (int i = 0; i < lfOrder.Count - 1; i++)
+                for (int j = i + 1 ; j < lfOrder.Count ; j++)
+                    numer = numer + Math.Sign(lfOrder[j] - lfOrder[i]);
             return 1.0 * numer / lfOrder.Count / (lfOrder.Count - 1) * 2;
         }
     }
