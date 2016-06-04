@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Timers;
@@ -35,10 +36,10 @@ namespace OT_UI
             //set up rank graph
             graph_rank = graph_r;
             graph_avg = graph_a;
-            var solutions = Utility.localMin();
+            var solutions = Utility.Xu2014(g : 3);
             otvs = new OTVS(solutions);
             updateRankPoints();
-            
+            /*
             var sol1 = Utility.Xu2014(1);
             var sol2 = Utility.Xu2014(2);
             var sol3 = Utility.Xu2014(3);
@@ -47,7 +48,7 @@ namespace OT_UI
             res += Utility.hasMinKendallAtOptimum(sol1) + "\n";
             res += Utility.hasMinKendallAtOptimum(sol2) + "\n";
             res += Utility.hasMinKendallAtOptimum(sol3) + "\n";
-            System.Windows.Forms.MessageBox.Show(res);
+            System.Windows.Forms.MessageBox.Show(res);*/
             /*
             iterator = new Thread(Iterate);
             iterator.Start();*/
@@ -116,9 +117,10 @@ namespace OT_UI
                 else
                     ranks.Points.Add(dp);
             }
+
             
             //Tau value lines
-            if(otvs.LeftTaus.Count > 0 && otvs.RightTaus.Count > 0)
+            if (otvs.LeftTaus.Count > 0 && otvs.RightTaus.Count > 0)
             {
                 //System.Windows.Forms.MessageBox.Show("left: " + otvs.LeftTaus.Count  + "right: " + otvs.RightTaus.Count);
                 Series left = graph_rank.Series.Where(x => x.Name == "LeftTauValue").ToList().First();
@@ -127,19 +129,25 @@ namespace OT_UI
                 right.Points.Clear();
                 Series proba = graph_rank.Series.Where(x => x.Name == "ProbaValue").ToList().First();
                 proba.Points.Clear();
+
+                String newTau = "" + otvs.LeftTaus.Count + ',' + otvs.RightTaus.Count + ',';
                 foreach (var i in Enumerable.Range(0, otvs.Solutions.Count))
                 {
                     if (!otvs.SampledIndices.Contains(i))
                     {
-                        DataPoint l = new DataPoint(otvs.Solutions[i].LFRank, - otvs.LeftTaus[i]);
-                        DataPoint r = new DataPoint(otvs.Solutions[i].LFRank, otvs.RightTaus[i]);
-                        DataPoint p = new DataPoint(otvs.Solutions[i].LFRank, otvs.ProbaValues[i]);
+                        newTau += Math.Round(otvs.LeftTaus[i], 3).ToString() + ',';
+                        DataPoint l = new DataPoint(otvs.Solutions[i].LFRank, otvs.LeftTaus[i]);  //Left Tau -1: increasing, 1: decreasing
+                        DataPoint r = new DataPoint(otvs.Solutions[i].LFRank, otvs.RightTaus[i]); //Right Tau-1: decreasing, 1: increasing
+                        DataPoint p = new DataPoint(otvs.Solutions[i].LFRank, otvs[i]);
                         left.Points.Add(l);
                         right.Points.Add(r);
-                        proba.Points.Add(p);
+                        //proba.Points.Add(p);
                     }
                 }
+
+                using (var sw = new StreamWriter("LeftTauValue.csv", true)) sw.WriteLine(newTau);
             }
+
         }
         
     }

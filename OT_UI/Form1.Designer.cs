@@ -131,6 +131,8 @@
             chartArea1.AxisY.LineColor = System.Drawing.Color.Transparent;
             chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
             chartArea1.AxisY2.LineColor = System.Drawing.Color.Transparent;
+            chartArea1.AxisY2.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.NotSet;
+            chartArea1.AxisY2.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
             chartArea1.BackColor = System.Drawing.Color.Transparent;
             chartArea1.BorderColor = System.Drawing.Color.Transparent;
             chartArea1.Name = "ChartArea1";
@@ -160,6 +162,7 @@
             series1.Color = System.Drawing.Color.Gray;
             series1.Legend = "Legend1";
             series1.Name = "Ranks";
+            series1.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series2.ChartArea = "ChartArea2";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series2.Color = System.Drawing.Color.Red;
@@ -175,11 +178,13 @@
             series4.Color = System.Drawing.Color.Red;
             series4.Legend = "Legend1";
             series4.Name = "Sampled";
+            series4.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series5.ChartArea = "ChartArea1";
             series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
             series5.Color = System.Drawing.Color.Fuchsia;
             series5.Legend = "Legend1";
             series5.Name = "Filter";
+            series5.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series5.YValuesPerPoint = 2;
             series6.ChartArea = "ChartArea2";
             series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;

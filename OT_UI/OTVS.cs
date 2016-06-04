@@ -33,6 +33,11 @@ namespace OT_UI
         public Dictionary<int, double> LeftTaus { get; private set; }
         public Dictionary<int, double> RightTaus { get; private set; }
         public Dictionary<int, double> ProbaValues { get; private set; }
+        double maxInProba;
+        public double this[int index]
+        {
+            get { return ProbaValues[index] / ProbaValues.Values.Max(); }
+        }
 
         //Decided once constructor initializes them
         private readonly Controller.sl_Filter filter;
@@ -46,7 +51,7 @@ namespace OT_UI
             RS = new Random(seed);
             Sampling = samplingScheme;
             Solutions = solutions.OrderBy(s => s.LFValue).ToList();
-            SampledIndices = new HashSet<int>(new int[] { 0, solutions.Count - 1 }.Distinct());
+            SampledIndices = new HashSet<int>(new int[] { 63, 368,  984 }.Distinct());   //63, 504, 984
             SampledResults = new List<double>();
             
             tries = 0;
@@ -185,9 +190,9 @@ namespace OT_UI
                 left = left.Select(x => Solutions[x].HFRank).ToList();
                 right = right.Select(x => Solutions[x].HFRank).ToList();
                 
-                LeftTaus.Add(i, Utility.KendallRank(left, true));
+                LeftTaus.Add(i, - Utility.KendallRank(left, true));
                 RightTaus.Add(i, Utility.KendallRank(right, true));
-                ProbaValues.Add(i, Math.Exp((-LeftTaus[i] + RightTaus[i]) * 3));
+                ProbaValues.Add(i, Math.Exp((LeftTaus[i] + RightTaus[i]) * 3));
                 return ProbaValues[i];
                 //return (LeftTaus[i] *left.Count - RightTaus[i]* right.Count) / 1.0 / (left.Count + right.Count);
             };
