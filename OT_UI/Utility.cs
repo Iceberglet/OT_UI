@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MathNet.Numerics.Distributions;
 
 namespace OT_UI
 {
@@ -53,6 +54,91 @@ namespace OT_UI
             }
 
             return RankAndSort(solutions);
+        }
+
+        //Global Minimum at x = 420.9687 when size = 500
+        public static List<Solution> Schwefel(int size = 500)
+        {
+            var solutions = new List<Solution>();
+            for (var x = 0; x < size; x+=10)
+            {
+                for(var y = 0; y < size; y+=10)
+                {
+                    double HfValue = 418.9829 * 2 - x * Math.Sin(Math.Sqrt(x)) - y * Math.Sin(Math.Sqrt(y));
+                    double LfValue = 418.9829 * 2 - x * (int)Math.Sin((int)Math.Sqrt(x)) - y * (int)Math.Sin((int)Math.Sqrt(y));
+                    solutions.Add(new Solution
+                    {
+                        HFValue = HfValue,
+                        LFValue = LfValue,
+                    });
+                }
+            }
+            return RankAndSort(solutions);
+        }
+
+        //Global Minimum at x = 0.898 and y = -7.126
+        public static List<Solution> SixHumpCamel()
+        {
+            var solutions = new List<Solution>();
+            for (double x = -30; x < 30; x += 0.8)
+            {
+                for (double y = -20; y < 20; y += 0.8)
+                {
+                    double HfValue = (4 - 2.1 * x * x + Math.Pow(x, 4)) * x * x + x * y + (4 * y * y - 4) * y * y;
+                    double LfValue = (4 - (int)(2.1 * x * x) + Math.Pow(x, 2)) * x * x + (int)(x * y) + (int)(4 * y * y - 4) * y * y;
+                    solutions.Add(new Solution
+                    {
+                        HFValue = HfValue,
+                        LFValue = LfValue,
+                    });
+                }
+            }
+            return RankAndSort(solutions);
+        }
+
+        //Minimum at x = y = 0
+        public static List<Solution> Rastrigin()
+        {
+            var solutions = new List<Solution>();
+            for (double x = -5.2; x < 5.2; x += 0.2)
+            {
+                for (double y = -5.2; y < 5.2; y += 0.2)
+                {
+                    double HfValue = 20 + (x * x - 10 * Math.Cos(2 * Math.PI * x)) + (y * y - 10 * Math.Cos(2 * Math.PI * y));
+                    double LfValue = 20 + (x * y - 8 * Math.Cos(Math.PI * x)) + (y * x - 7 * Math.Cos(2 * Math.PI * y));
+                    //var z = 0.5 + x;
+                    //double LfValue = 20 + ((int)(z * x) - 10 * Math.Cos(1.9 * 3 * z)) + ((int)(z * y) - 10 * Math.Cos(2.2 * 3 * y));
+                    //double LfValue = 20 + (x * x - 10 * Math.Cos(2 * 3 * x)) + (y * y - 10 * Math.Cos(2 * 3 * y));
+                    solutions.Add(new Solution
+                    {
+                        HFValue = HfValue,
+                        LFValue = LfValue,
+                    });
+                }
+            }
+            return RankAndSort(solutions);
+        }
+
+        //
+        public static List<Solution> GramacyLee()
+        {
+            var solutions = new List<Solution>();
+            for (double x = 0.5; x < 2.5; x += 0.005)
+            {
+                double HfValue = Math.Sin(10 * Math.PI * x) / 2 / x + Math.Pow((x - 1), 4);
+                double LfValue = Math.Sin(5 * Math.PI * x) / 2 / x + Math.Pow((x - 1), 4);
+                solutions.Add(new Solution
+                {
+                    HFValue = HfValue,
+                    LFValue = LfValue,
+                });
+            }
+            return RankAndSort(solutions);
+        }
+
+        public static List<Solution> Griewank()
+        {
+            return null;
         }
 
         public static List<Solution> RankAndSort(List<Solution> solutions)
@@ -110,7 +196,6 @@ namespace OT_UI
             System.Windows.Forms.MessageBox.Show(s);
         }
 
-
         // A simplified version from 
         // https://en.wikipedia.org/wiki/Kendall_rank_correlation_coefficient
         // Returns a value between [-n(n-1)/2, n(n-1)/2]
@@ -124,6 +209,16 @@ namespace OT_UI
             if(!normalize)
                 return (double)numer;
             else return 1.0 * numer / lfOrder.Count / (lfOrder.Count - 1) * 2;
+        }
+
+        public static double InvNormal(Double x, Double mean = 0, Double stddev = 1)
+        {
+            return Normal.InvCDF(mean, stddev, x);
+        }
+
+        public static double InvChiSquare(Double dof, Double x)
+        {
+            return ChiSquared.InvCDF(dof, x);
         }
     }
 }

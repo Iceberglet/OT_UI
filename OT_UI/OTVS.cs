@@ -7,13 +7,6 @@ using System.Threading.Tasks;
 
 namespace OT_UI
 {
-    public class Solution
-    {
-        public double LFValue { get; set; }
-        public double HFValue { get; set; }
-        public int LFRank { get; set; }
-        public int HFRank { get; set; }
-    }
 
     public class OTVS
     {
@@ -33,11 +26,21 @@ namespace OT_UI
         public Dictionary<int, double> LeftTaus { get; private set; }
         public Dictionary<int, double> RightTaus { get; private set; }
         public Dictionary<int, double> ProbaValues { get; private set; }
-        double maxInProba;
+        
         public double this[int index]
-        {
-            get { return ProbaValues[index] / ProbaValues.Values.Max(); }
-        }
+        { get {
+                switch (strategy)
+                {
+                    case Controller.sl_Strategy.Kernel:
+                        return ProbaValues[index] / ProbaValues.Values.Max();
+                    case Controller.sl_Strategy.Det1:
+                    case Controller.sl_Strategy.Det2:
+                        return LeftTaus[index] - RightTaus[index];
+                    default: return 0;
+                }
+        }}
+
+        private static readonly double smoothFactor = 3;
 
         //Decided once constructor initializes them
         private readonly Controller.sl_Filter filter;
@@ -51,15 +54,27 @@ namespace OT_UI
             RS = new Random(seed);
             Sampling = samplingScheme;
             Solutions = solutions.OrderBy(s => s.LFValue).ToList();
-            SampledIndices = new HashSet<int>(new int[] { 63, 368,  984 }.Distinct());   //63, 504, 984
+            SampledIndices = new HashSet<int>(new int[] { 0, solutions.Count - 1 }.Distinct());   //63, 368,  984
             SampledResults = new List<double>();
             
             tries = 0;
-
+            /*
+            filter = Controller.sl_Filter.None;
+            kendall = Controller.sl_Kendall.Min;
+            strategy = Controller.sl_Strategy.Det1;
+            */
             filter = Controller.selected_filter;
             kendall = Controller.selected_kendall;
             strategy = Controller.selected_strategy;
+        }
 
+        public void initialize()
+        {
+            LeftTaus = new Dictionary<int, double>();
+            RightTaus = new Dictionary<int, double>();
+            ProbaValues = new Dictionary<int, double>();
+            SampledIndices = new HashSet<int>(new int[] { 0, Solutions.Count - 1 }.Distinct());   //63, 368,  984
+            SampledResults = new List<double>();
         }
 
         //Order sampled indices by their LF value
@@ -79,7 +94,11 @@ namespace OT_UI
 
             int next = NextToSample();
             SampledIndices.Add(next);
-            double v = Solutions.ElementAt(next).HFValue < bestSofar ? Solutions.ElementAt(next).HFValue : bestSofar;
+            double v = Solutions.ElementAt(next).HFValue;
+            if(v < bestSofar)
+            {
+                bestSofar = v;
+            }
             SampledResults.Add(v);
             return true;
         }
@@ -183,17 +202,28 @@ namespace OT_UI
             //For each candidate solution we calculate its L and R tau values
             Func<int, double> twoSideKendallProba = i =>
             {
-                List<int> left = partial.Where(j => j < i).ToList();
-                List<int> right = partial.Where(j => j > i).ToList();
-                left.Sort();
-                right.Sort();
-                left = left.Select(x => Solutions[x].HFRank).ToList();
-                right = right.Select(x => Solutions[x].HFRank).ToList();
-                
-                LeftTaus.Add(i, - Utility.KendallRank(left, true));
-                RightTaus.Add(i, Utility.KendallRank(right, true));
-                ProbaValues.Add(i, Math.Exp((LeftTaus[i] + RightTaus[i]) * 3));
-                return ProbaValues[i];
+                switch (strategy)
+                {
+                    case Controller.sl_Strategy.Det1:
+                    case Controller.sl_Strategy.Det2:
+                        LeftTaus.Add(i, Utility.KendallRank(new int[] { i }.Concat(partial.Where(j => j < i)).ToList(), true));
+                        RightTaus.Add(i, Utility.KendallRank(new int[] { i }.Concat(partial.Where(j => j > i)).ToList(), true));
+                        return LeftTaus[i] - RightTaus[i];
+                    case Controller.sl_Strategy.Kernel:
+                        List<int> left = partial.Where(j => j < i).ToList();
+                        List<int> right = partial.Where(j => j > i).ToList();
+                        left.Sort();
+                        right.Sort();
+                        left = left.Select(x => Solutions[x].HFRank).ToList();
+                        right = right.Select(x => Solutions[x].HFRank).ToList();
+
+                        LeftTaus.Add(i, -Utility.KendallRank(left, true));
+                        RightTaus.Add(i, Utility.KendallRank(right, true));
+                        ProbaValues.Add(i, Math.Exp((LeftTaus[i] + RightTaus[i]) * smoothFactor));
+                        return ProbaValues[i];
+                    case Controller.sl_Strategy.Tour: return -1;
+                }
+                return -1;
                 //return (LeftTaus[i] *left.Count - RightTaus[i]* right.Count) / 1.0 / (left.Count + right.Count);
             };
 
@@ -202,17 +232,17 @@ namespace OT_UI
             switch (strategy)
             {
                 case Controller.sl_Strategy.Det1:
-                    var maxProba = double.NegativeInfinity;
+                    var minError = double.PositiveInfinity;
                     foreach (var i in Enumerable.Range(0, Solutions.Count))
                         if (!SampledIndices.Contains(i))
                         {
                             var error = twoSideKendallProba(i);
-                            if (error > maxProba)
+                            if (error < minError)
                             {
-                                maxProba = error;
+                                minError = error;
                                 candidates = new List<int> { i };
                             }
-                            else if (error == maxProba) candidates.Add(i);
+                            else if (error == minError) candidates.Add(i);
                         }
                     if (Sampling == SamplingScheme.Binary) return candidates[candidates.Count / 2];
                     return candidates[RS.Next(candidates.Count)];

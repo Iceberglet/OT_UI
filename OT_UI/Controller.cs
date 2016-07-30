@@ -25,8 +25,8 @@ namespace OT_UI
         //private static Thread iterator;
         private static Chart graph_rank;
         private static Chart graph_avg;
-        private static OTVS otvs;
-
+        private static Algorithm algo;
+        
         //Called when initialize is clicked
 
         public static void Initialize(Form1 form, Chart graph_r, Chart graph_a)
@@ -36,8 +36,14 @@ namespace OT_UI
             //set up rank graph
             graph_rank = graph_r;
             graph_avg = graph_a;
-            var solutions = Utility.Xu2014(g : 3);
-            otvs = new OTVS(solutions);
+            //var solutions = Utility.Rastrigin();
+            //var solutions = Utility.SixHumpCamel();
+            //var solutions = Utility.Schwefel();
+            //var solutions = Utility.Xu2014(g : 3);
+            //var solutions = Utility.GramacyLee();
+            var solutions = Utility.localMin();
+            algo = new MinSeeker(10);
+            algo.initialize(solutions);
             updateRankPoints();
             /*
             var sol1 = Utility.Xu2014(1);
@@ -49,75 +55,125 @@ namespace OT_UI
             res += Utility.hasMinKendallAtOptimum(sol2) + "\n";
             res += Utility.hasMinKendallAtOptimum(sol3) + "\n";
             System.Windows.Forms.MessageBox.Show(res);*/
-            /*
-            iterator = new Thread(Iterate);
-            iterator.Start();*/
-
-            /*
-            while (runningRound)
-            {
-                //Call iterate every 10ms if running == false
-                Timer timer = new Timer();
-                // Tell the timer what to do when it elapses
-                timer.Elapsed += new ElapsedEventHandler(Iterate);
-                // Set it to go off every five seconds
-                timer.Interval = 50;
-                // And start it
-                timer.Enabled = true;
-            }*/
         }
-
-        /*
-        public static void Stop()
-        {
-            runningRound = false;
-        }*/
 
         //Called repeatedly after Initialize
         public static void Iterate()
         {
-            /*
-            if (speed == 0)
-            {
-                return;
-            }*/
-
-            otvs.Iterate();
-            //1. Already at end of one Round, add to average, refresh and continue.
-
-            //2. Do one iteration
-
-            //3. Now at the end of one Round? (3) Refresh and continue (2,1) Pause
-
-            //4. (2) Continue (1) Pause
+            algo.iterate();
             updateRankPoints();
-            
         }
+
+        public static void evaluatePerformance()
+        {
+            
+            evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
+            evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
+            evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
+            evaluateFunction(Utility.localMin(), "Compare_localMin");
+            //evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
+            
+            //evaluateFunction(Utility.SixHumpCamel(), "Compare_SixHumpCamel");
+            //evaluateFunction(Utility.Rastrigin(), "Compare_Rastrigin");
+            /*
+            var solutionG1 = Utility.Xu2014(g: 1);
+
+            int totalIteration = 200;
+            int samplePerIter = 60;
+            double[] results1 = new double[samplePerIter];
+            var myOtvs1 = new OTVS(solutionG1);
+            for (int i = 0; i < totalIteration; i++)
+            {
+                myOtvs1.initialize();
+                for (int j = 0; j < samplePerIter; j++)
+                {
+                    myOtvs1.Iterate();
+                    results1[j] += myOtvs1.Optimum.HFValue;
+                }
+            }
+            for(int i = 0; i < samplePerIter; i++)
+            {
+                results1[i] /= -totalIteration;
+                String newLine = (i + 3) + "," + results1[i] + "," + results2[i] + "," + results3[i];
+                using (var sw = new StreamWriter("G123.csv", true)) sw.WriteLine(newLine);
+            }*/
+        }
+
+        //Compare MO2TOS and US
+        public static void evaluateFunction(List<Solution> sols, String fileName, int groupNumbers = 10)
+        {
+            int totalIteration = 100;
+            int samplePerIter = 60;
+
+            Algorithm mo2tos = new MO2TOS(groupNumbers, MO2TOS.SamplingScheme.Hybrid);
+            Algorithm minSeeker = new MinSeeker(groupNumbers);
+            mo2tos.initialize(sols);
+            minSeeker.initialize(sols);
+            var results1 = new double[samplePerIter];
+            var results2 = new double[samplePerIter];
+
+            //Testing Stage
+            for (int i = 0; i < totalIteration; i++)
+            {
+                mo2tos.resetIteration();
+                minSeeker.resetIteration();
+                for (int j = 0; j < samplePerIter; j++)
+                {
+                    mo2tos.iterate();
+                    minSeeker.iterate();
+                    results1[j] += mo2tos.optimum.HFValue;
+                    results2[j] += minSeeker.optimum.HFValue;
+                }
+            }
+
+            String header = "Names: ," + "MO2TOS" + "," + "MinSeeker";// + "," + results3[i];
+            using (var sw = new StreamWriter(fileName + ".csv", true)) sw.WriteLine(header);
+            for (int i = 0; i < samplePerIter; i++)
+            {
+                results1[i] /= totalIteration;
+                results2[i] /= totalIteration;
+                String newLine = (i + groupNumbers*2 + 1) + "," + results1[i] + "," + results2[i];// + "," + results3[i];
+                using (var sw = new StreamWriter(fileName + ".csv", true)) sw.WriteLine(newLine);
+            }
+        }
+
 
         private static void updateRankPoints()
         {
-            Series ranks = graph_rank.Series.Where(x => x.Name == "Ranks").ToList().First();
-            ranks.Points.Clear();
+            //using (var sw = new StreamWriter("Optimal.csv", true)) sw.WriteLine(otvs.Optimum.HFValue);
+            Series otherPoints = graph_rank.Series.Where(x => x.Name == "Ranks").ToList().First();
+            otherPoints.Points.Clear();
             Series sampled = graph_rank.Series.Where(x => x.Name == "Sampled").ToList().First();
             sampled.Points.Clear();
-            Series filtered = graph_rank.Series.Where(x => x.Name == "Filter").ToList().First();
-            filtered.Points.Clear();
-            foreach (var i in Enumerable.Range(0, otvs.Solutions.Count))
+            Series newPoints = graph_rank.Series.Where(x => x.Name == "Filter").ToList().First();
+            newPoints.Points.Clear();
+            Series proba = graph_rank.Series.Where(x => x.Name == "ProbaValue").ToList().First();
+            proba.Points.Clear();
+            foreach (var i in Enumerable.Range(0, algo.solutions.Count))
             {
-                DataPoint dp = new DataPoint(otvs.Solutions[i].LFRank, otvs.Solutions[i].HFRank);
-                if (otvs.partial.Contains(i))
+                DataPoint dp = new DataPoint(algo.solutions[i].LFRank, algo.solutions[i].HFRank);
+                int lf = algo.solutions[i].LFRank;
+                //For Proba Lines
+                if(algo.solutions[i].proba > 0)
+                {
+                    DataPoint p = new DataPoint(lf, algo.solutions[i].proba);
+                    proba.Points.Add(p);
+                }
+                //For Data Points
+                if (algo.lfNewlySampled.Contains(lf))
                 {
                     dp.MarkerSize = 15;
                     dp.MarkerColor = System.Drawing.Color.Violet;
                     dp.MarkerStyle = MarkerStyle.Diamond;
-                    filtered.Points.Add(dp);
+                    newPoints.Points.Add(dp);
                 }
-                else if(otvs.SampledIndices.Contains(i))
+                else if(algo.lfSampled.Contains(lf))
                     sampled.Points.Add(dp);
                 else
-                    ranks.Points.Add(dp);
+                    otherPoints.Points.Add(dp);
             }
 
+            /*
             
             //Tau value lines
             if (otvs.LeftTaus.Count > 0 && otvs.RightTaus.Count > 0)
@@ -147,7 +203,7 @@ namespace OT_UI
 
                 using (var sw = new StreamWriter("LeftTauValue.csv", true)) sw.WriteLine(newTau);
             }
-
+            */
         }
         
     }
