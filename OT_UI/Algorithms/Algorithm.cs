@@ -17,7 +17,7 @@ namespace OT_UI
 
     public abstract class Algorithm
     {
-        protected static Random rand = new Random();
+        protected static Random rand = new Random(0);
 
         public List<Solution> solutions { protected set; get; }
         protected HashSet<Solution> solutionsSampled;

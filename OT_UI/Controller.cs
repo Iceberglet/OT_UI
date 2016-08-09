@@ -38,11 +38,12 @@ namespace OT_UI
             graph_avg = graph_a;
             //var solutions = Utility.Rastrigin();
             //var solutions = Utility.SixHumpCamel();
-            //var solutions = Utility.Schwefel();
-            //var solutions = Utility.Xu2014(g : 3);
+            var solutions = Utility.Schwefel();
+            //var solutions = Utility.Xu2014(g : 2);
             //var solutions = Utility.GramacyLee();
-            var solutions = Utility.localMin();
+            //var solutions = Utility.localMin();
             algo = new MinSeeker(10);
+            //algo = new MO2TOS(10);
             algo.initialize(solutions);
             updateRankPoints();
             /*
@@ -67,45 +68,23 @@ namespace OT_UI
         public static void evaluatePerformance()
         {
             
-            evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
-            evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
-            evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
-            evaluateFunction(Utility.localMin(), "Compare_localMin");
+            //evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
+            //evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
+            //evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
+            //evaluateFunction(Utility.localMin(), "Compare_localMin");
             //evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
             
             //evaluateFunction(Utility.SixHumpCamel(), "Compare_SixHumpCamel");
             //evaluateFunction(Utility.Rastrigin(), "Compare_Rastrigin");
-            /*
-            var solutionG1 = Utility.Xu2014(g: 1);
-
-            int totalIteration = 200;
-            int samplePerIter = 60;
-            double[] results1 = new double[samplePerIter];
-            var myOtvs1 = new OTVS(solutionG1);
-            for (int i = 0; i < totalIteration; i++)
-            {
-                myOtvs1.initialize();
-                for (int j = 0; j < samplePerIter; j++)
-                {
-                    myOtvs1.Iterate();
-                    results1[j] += myOtvs1.Optimum.HFValue;
-                }
-            }
-            for(int i = 0; i < samplePerIter; i++)
-            {
-                results1[i] /= -totalIteration;
-                String newLine = (i + 3) + "," + results1[i] + "," + results2[i] + "," + results3[i];
-                using (var sw = new StreamWriter("G123.csv", true)) sw.WriteLine(newLine);
-            }*/
         }
 
         //Compare MO2TOS and US
         public static void evaluateFunction(List<Solution> sols, String fileName, int groupNumbers = 10)
         {
-            int totalIteration = 100;
+            int totalIteration = 300;
             int samplePerIter = 60;
 
-            Algorithm mo2tos = new MO2TOS(groupNumbers, MO2TOS.SamplingScheme.Hybrid);
+            Algorithm mo2tos = new MO2TOS(groupNumbers);
             Algorithm minSeeker = new MinSeeker(groupNumbers);
             mo2tos.initialize(sols);
             minSeeker.initialize(sols);
@@ -119,10 +98,10 @@ namespace OT_UI
                 minSeeker.resetIteration();
                 for (int j = 0; j < samplePerIter; j++)
                 {
-                    mo2tos.iterate();
-                    minSeeker.iterate();
                     results1[j] += mo2tos.optimum.HFValue;
                     results2[j] += minSeeker.optimum.HFValue;
+                    mo2tos.iterate();
+                    minSeeker.iterate();
                 }
             }
 
@@ -172,39 +151,6 @@ namespace OT_UI
                 else
                     otherPoints.Points.Add(dp);
             }
-
-            /*
-            
-            //Tau value lines
-            if (otvs.LeftTaus.Count > 0 && otvs.RightTaus.Count > 0)
-            {
-                //System.Windows.Forms.MessageBox.Show("left: " + otvs.LeftTaus.Count  + "right: " + otvs.RightTaus.Count);
-                Series left = graph_rank.Series.Where(x => x.Name == "LeftTauValue").ToList().First();
-                left.Points.Clear();
-                Series right = graph_rank.Series.Where(x => x.Name == "RightTauValue").ToList().First();
-                right.Points.Clear();
-                Series proba = graph_rank.Series.Where(x => x.Name == "ProbaValue").ToList().First();
-                proba.Points.Clear();
-
-                String newTau = "" + otvs.LeftTaus.Count + ',' + otvs.RightTaus.Count + ',';
-                foreach (var i in Enumerable.Range(0, otvs.Solutions.Count))
-                {
-                    if (!otvs.SampledIndices.Contains(i))
-                    {
-                        newTau += Math.Round(otvs.LeftTaus[i], 3).ToString() + ',';
-                        DataPoint l = new DataPoint(otvs.Solutions[i].LFRank, otvs.LeftTaus[i]);  //Left Tau -1: increasing, 1: decreasing
-                        DataPoint r = new DataPoint(otvs.Solutions[i].LFRank, otvs.RightTaus[i]); //Right Tau-1: decreasing, 1: increasing
-                        DataPoint p = new DataPoint(otvs.Solutions[i].LFRank, otvs[i]);
-                        left.Points.Add(l);
-                        right.Points.Add(r);
-                        //proba.Points.Add(p);
-                    }
-                }
-
-                using (var sw = new StreamWriter("LeftTauValue.csv", true)) sw.WriteLine(newTau);
-            }
-            */
         }
-        
     }
 }

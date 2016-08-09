@@ -15,7 +15,7 @@ namespace OT_UI
 
         protected List<List<Solution>> solutionGroups;
 
-        public MO2TOS(int groups, SamplingScheme scheme)
+        public MO2TOS(int groups, SamplingScheme scheme = SamplingScheme.Hybrid)
         {
             this.groupNumber = groups;
             this.sampleScheme = scheme;
@@ -41,24 +41,31 @@ namespace OT_UI
 
         public override bool iterate()
         {
-            int maxTry = 60, tries = 0;
             var positiveRatios = OCBAMarginalRatios.Select(r => Math.Max(0, r)).ToArray();
-            while (tries < maxTry)
+            while (true)
             {
                 var sum = rand.NextDouble() * positiveRatios.Sum();
                 for (int i = 0; i < positiveRatios.Length; i++)
                 {
                     sum -= positiveRatios[i];
-                    if (sum < 0 && Sample(solutionGroups[i]))
-                        return true;
+                    if (sum < 0 && Sample(solutionGroups[i])) return true;
                 }
-                tries++;
             }
-            return false;
         }
-        
 
-        protected double[] OCBARatios
+
+        public double[] OCBAMarginalRatios
+        {
+            get
+            {
+                var targetRatios = OCBARatios;
+                var currentRatios = solutionGroups.Select(g => (double)g.Count(s => solutionsSampled.Contains(s))).ToArray();
+                currentRatios = currentRatios.Select(r => r / currentRatios.Sum()).ToArray();
+                return Enumerable.Range(0, solutionGroups.Count).Select(i => targetRatios[i] - currentRatios[i]).ToArray();
+            }
+        }
+
+        private double[] OCBARatios
         {
             get
             {
@@ -77,17 +84,6 @@ namespace OT_UI
                     return ratios.Select(r => r / sum).ToArray();
                 }
                 return Enumerable.Repeat(1.0 / indices.Count, indices.Count).ToArray();
-            }
-        }
-
-        protected double[] OCBAMarginalRatios
-        {
-            get
-            {
-                var targetRatios = OCBARatios;
-                var currentRatios = solutionGroups.Select(g => (double)g.Count(s => solutionsSampled.Contains(s))).ToArray();
-                currentRatios = currentRatios.Select(r => r / currentRatios.Sum()).ToArray();
-                return Enumerable.Range(0, solutionGroups.Count).Select(i => targetRatios[i] - currentRatios[i]).ToArray();
             }
         }
 

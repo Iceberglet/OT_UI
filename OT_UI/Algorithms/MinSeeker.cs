@@ -79,7 +79,10 @@ namespace OT_UI
         {
             var candidates = group.Where(s => !solutionsSampled.Contains(s)).OrderBy(s => s.LFValue).ToList();
             if (candidates.Count < 1) return false;
-            Solution sampled = candidates[rand.Next(candidates.Count)];
+            //Solution sampled = candidates[rand.Next(candidates.Count)];
+            Solution sampled = null;
+            if (rand.NextDouble() < 0.5) sampled = candidates.First();
+            else sampled = candidates[rand.Next(candidates.Count)];
             solutionsSampled.Add(sampled);
             return true;
         }
