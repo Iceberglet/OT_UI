@@ -27,11 +27,26 @@ namespace OT_UI
             this.solutionGroups = Enumerable.Range(0, groupNumber).Select(i => new List<Solution>()).ToList();
             for (int i = 0; i < solutions.Count; i++)
                 solutionGroups[i * groupNumber / solutions.Count].Add(solutions[i]);
+            //Sample two solutions from each of 10 groups
+            int groupSize = solutions.Count / 10;
+            for (int i = 0; i < 10; i++)
+            {
+                int idxToSample = rand.Next(groupSize) + i * groupSize;
+                int secondIdxToSample = rand.Next(groupSize) + i * groupSize;
+
+                while (secondIdxToSample == idxToSample)
+                {
+                    secondIdxToSample = rand.Next(groupSize) + i * groupSize;
+                }
+                solutionsSampled.Add(solutions.ElementAt(idxToSample));
+                solutionsSampled.Add(solutions.ElementAt(secondIdxToSample));
+            }
+            /*
             foreach (var group in solutionGroups)
             {
                 Sample(group);
                 Sample(group);
-            }
+            }*/
         }
 
         public override void resetIteration()

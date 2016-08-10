@@ -70,7 +70,7 @@ namespace OT_UI
             
             //evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
             //evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
-            //evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
+            evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
             //evaluateFunction(Utility.localMin(), "Compare_localMin");
             //evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
             
@@ -81,7 +81,7 @@ namespace OT_UI
         //Compare MO2TOS and US
         public static void evaluateFunction(List<Solution> sols, String fileName, int groupNumbers = 10)
         {
-            int totalIteration = 300;
+            int totalIteration = 1;
             int samplePerIter = 60;
 
             Algorithm mo2tos = new MO2TOS(groupNumbers);

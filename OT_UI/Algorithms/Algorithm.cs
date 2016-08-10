@@ -36,7 +36,6 @@ namespace OT_UI
             this.solutions = solutions.OrderBy(s => s.LFValue).ToList();
             this.solutionsSampled = new HashSet<Solution>();
             this.lfNewlySampled = new List<int>();
-
         }
 
         public abstract void resetIteration();

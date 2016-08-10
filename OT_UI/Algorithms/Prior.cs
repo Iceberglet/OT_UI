@@ -8,31 +8,24 @@ using MathNet.Numerics.Distributions;
 
 namespace OT_UI
 {
-    public class MinSeeker : Algorithm
+    public class Prior : Algorithm
     {
-        protected int groupNumber;  //Number of groups
 
-        protected List<List<Solution>> solutionGroups;
 
-        public MinSeeker(int groups)
+        public Prior()
         {
-            this.groupNumber = groups;
         }
 
         public override void initialize(List<Solution> solutions)
         {
             base.initialize(solutions);
-            this.solutionGroups = Enumerable.Range(0, groupNumber).Select(i => new List<Solution>()).ToList();
-            for (int i = 0; i < solutions.Count; i++)
-                solutionGroups[i * groupNumber / solutions.Count].Add(solutions[i]);
-            
             //Sample two solutions from each of 10 groups
             int groupSize = solutions.Count / 10;
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 int idxToSample = rand.Next(groupSize) + i * groupSize;
                 int secondIdxToSample = rand.Next(groupSize) + i * groupSize;
-                
+
                 while (secondIdxToSample == idxToSample)
                 {
                     secondIdxToSample = rand.Next(groupSize) + i * groupSize;
@@ -40,22 +33,16 @@ namespace OT_UI
                 solutionsSampled.Add(solutions.ElementAt(idxToSample));
                 solutionsSampled.Add(solutions.ElementAt(secondIdxToSample));
             }
-            /*
-            foreach (var group in solutionGroups)
-            {   //Sample twice as initial samples to get started
-                Sample(group);
-                Sample(group);
-            }*/
         }
 
         public override void resetIteration()
         {
             this.initialize(solutions);
         }
-
+        
         public override bool iterate()
         {
-            populateProba();
+            //populateProba();
             var candidates = solutions.Where(s => s.proba > 0).ToList();
 
             var sum = candidates.Select(s=>s.proba).Sum();
@@ -74,7 +61,7 @@ namespace OT_UI
             lfNewlySampled.Add(sampled.LFRank);
             return false;
         }
-
+        /*
         protected void populateProba()
         {
             solutionGroups.ForEach(delegate(List<Solution> sols)
@@ -101,6 +88,6 @@ namespace OT_UI
             else sampled = candidates[rand.Next(candidates.Count)];
             solutionsSampled.Add(sampled);
             return true;
-        }
+        }*/
     }
 }
