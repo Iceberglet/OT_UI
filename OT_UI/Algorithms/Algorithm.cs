@@ -38,6 +38,12 @@ namespace OT_UI
             this.lfNewlySampled = new List<int>();
         }
 
+        protected void sample(Solution s)
+        {
+            solutionsSampled.Add(s);
+            lfNewlySampled.Add(s.LFRank);
+        }
+
         public abstract void resetIteration();
 
         public abstract bool iterate();

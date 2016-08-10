@@ -9,6 +9,8 @@ namespace OT_UI
 {
     public class MO2TOS : Algorithm
     {
+        private Random randForNewSamples = new Random(0);
+
         public enum SamplingScheme { Greedy, Random, Hybrid };
         protected SamplingScheme sampleScheme;
         protected int groupNumber;  //Number of groups
@@ -31,15 +33,15 @@ namespace OT_UI
             int groupSize = solutions.Count / 10;
             for (int i = 0; i < 10; i++)
             {
-                int idxToSample = rand.Next(groupSize) + i * groupSize;
-                int secondIdxToSample = rand.Next(groupSize) + i * groupSize;
+                int idxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
+                int secondIdxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
 
                 while (secondIdxToSample == idxToSample)
                 {
-                    secondIdxToSample = rand.Next(groupSize) + i * groupSize;
+                    secondIdxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
                 }
-                solutionsSampled.Add(solutions.ElementAt(idxToSample));
-                solutionsSampled.Add(solutions.ElementAt(secondIdxToSample));
+                sample(solutions.ElementAt(idxToSample));
+                sample(solutions.ElementAt(secondIdxToSample));
             }
             /*
             foreach (var group in solutionGroups)

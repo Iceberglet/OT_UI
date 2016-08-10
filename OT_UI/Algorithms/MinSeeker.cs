@@ -10,6 +10,8 @@ namespace OT_UI
 {
     public class MinSeeker : Algorithm
     {
+        private Random randForNewSamples = new Random(0);
+
         protected int groupNumber;  //Number of groups
 
         protected List<List<Solution>> solutionGroups;
@@ -25,20 +27,19 @@ namespace OT_UI
             this.solutionGroups = Enumerable.Range(0, groupNumber).Select(i => new List<Solution>()).ToList();
             for (int i = 0; i < solutions.Count; i++)
                 solutionGroups[i * groupNumber / solutions.Count].Add(solutions[i]);
-            
             //Sample two solutions from each of 10 groups
             int groupSize = solutions.Count / 10;
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
-                int idxToSample = rand.Next(groupSize) + i * groupSize;
-                int secondIdxToSample = rand.Next(groupSize) + i * groupSize;
-                
+                int idxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
+                int secondIdxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
+
                 while (secondIdxToSample == idxToSample)
                 {
-                    secondIdxToSample = rand.Next(groupSize) + i * groupSize;
+                    secondIdxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
                 }
-                solutionsSampled.Add(solutions.ElementAt(idxToSample));
-                solutionsSampled.Add(solutions.ElementAt(secondIdxToSample));
+                sample(solutions.ElementAt(idxToSample));
+                sample(solutions.ElementAt(secondIdxToSample));
             }
             /*
             foreach (var group in solutionGroups)

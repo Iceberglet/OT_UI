@@ -11,6 +11,7 @@ namespace OT_UI
     public class Prior : Algorithm
     {
 
+        private Random randForNewSamples = new Random(0);
 
         public Prior()
         {
@@ -23,15 +24,15 @@ namespace OT_UI
             int groupSize = solutions.Count / 10;
             for (int i = 0; i < 10; i++)
             {
-                int idxToSample = rand.Next(groupSize) + i * groupSize;
-                int secondIdxToSample = rand.Next(groupSize) + i * groupSize;
+                int idxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
+                int secondIdxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
 
                 while (secondIdxToSample == idxToSample)
                 {
-                    secondIdxToSample = rand.Next(groupSize) + i * groupSize;
+                    secondIdxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
                 }
-                solutionsSampled.Add(solutions.ElementAt(idxToSample));
-                solutionsSampled.Add(solutions.ElementAt(secondIdxToSample));
+                sample(solutions.ElementAt(idxToSample));
+                sample(solutions.ElementAt(secondIdxToSample));
             }
         }
 
@@ -42,13 +43,12 @@ namespace OT_UI
         
         public override bool iterate()
         {
-            //populateProba();
+            populateProba();
             var candidates = solutions.Where(s => s.proba > 0).ToList();
 
             var sum = candidates.Select(s=>s.proba).Sum();
             var random = rand.NextDouble() * sum;
             var index = 0;
-            //Try to select the group to sample
             while (random > 0)
             {
                 random -= candidates[index].proba;
@@ -61,33 +61,53 @@ namespace OT_UI
             lfNewlySampled.Add(sampled.LFRank);
             return false;
         }
-        /*
+        
         protected void populateProba()
         {
-            solutionGroups.ForEach(delegate(List<Solution> sols)
+            Double currBest = optimum.HFValue;
+            solutions.ForEach(delegate(Solution sol)
             {
-                //Find mean and stddev of the sampled points in EACH group
-                var hfValues = sols.Where(s => solutionsSampled.Contains(s)).Select(s => s.HFValue).ToList();
-                var mean = hfValues.Mean();
-                var stddev = hfValues.StandardDeviation();
-                double proba = Normal.CDF(mean, stddev, optimum.HFValue);
-
-                //Already sampled gets 0
-                sols.ForEach(sol => sol.proba = solutionsSampled.Contains(sol) ? 0 : proba);
+                sol.proba = proba(sol, currBest);
             });
         }
 
-        //Only used in initialization
-        protected bool Sample(List<Solution> group)
+        private Double proba(Solution sol, Double currBest)
         {
-            var candidates = group.Where(s => !solutionsSampled.Contains(s)).OrderBy(s => s.LFValue).ToList();
-            if (candidates.Count < 1) return false;
-            //Solution sampled = candidates[rand.Next(candidates.Count)];
-            Solution sampled = null;
-            if (rand.NextDouble() < 0.5) sampled = candidates.First();
-            else sampled = candidates[rand.Next(candidates.Count)];
-            solutionsSampled.Add(sampled);
-            return true;
-        }*/
+            if (solutionsSampled.Contains(sol))
+                return 0;
+            else
+            {
+                //Get the weighted mean
+                Double meanTop = 0, meanBtm = 0;
+                foreach(Solution s in solutionsSampled)
+                {
+                    Double topIncrement = decayFactor(s, sol) * s.HFValue;
+                    meanTop += topIncrement;
+                    meanBtm += decayFactor(s, sol);
+                }
+                Double mean = meanTop / meanBtm;
+
+                //Get the weighted variance
+                Double varTop = 0, varBtm = 0;
+                foreach (Solution s in solutionsSampled)
+                {
+                    varTop += Math.Pow(decayFactor(s, sol) * (s.HFValue - mean), 2);
+                    varBtm += Math.Pow(decayFactor(s, sol), 2);
+                }
+                Double stddev = Math.Pow(varTop / varBtm, 0.5);
+
+                //Calculate the prior proba
+                Double p = Normal.CDF(mean, stddev, currBest);
+                return p;
+            }
+        }
+
+        //Decay Factor for two indices on Solution Axis (LF)
+        //Always equal to 1 if distance is 1, and asymptotically goes to 0 as distance goes up
+        private Double decayFactor(Solution s1, Solution s2)
+        {
+            Double p = Math.Pow((s1.LFRank - s2.LFRank), -2); //** IMPORTANT ** LFValue is used instead of LFRank
+            return p;
+        }
     }
 }
