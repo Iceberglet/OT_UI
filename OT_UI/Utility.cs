@@ -31,6 +31,22 @@ namespace OT_UI
             return RankAndSort(solutions);
         }
 
+        public static List<Solution> Test()
+        {
+            var solutions = new List<Solution>();
+            for (var x = 0.0; x <= 10; x += 0.1)
+            {
+                double lfValue = 0;
+                lfValue = -(Math.Pow(Math.Sin(0.09 * Math.PI * x), 6) / Math.Pow(2, 2 * Math.Pow((x - 10) / 80, 2)));
+                solutions.Add(new Solution
+                {
+                    HFValue = -(Math.Pow(Math.Sin(0.09 * Math.PI * x), 6) / Math.Pow(2, 2 * Math.Pow((x - 10) / 80, 2)) + 0.1 * Math.Cos(0.5 * Math.PI * x) + 0.5 * Math.Pow((x - 40) / 60, 2) + 0.4 * Math.Sin((x + 10) / 100 * Math.PI)),
+                    LFValue = lfValue,
+                });
+            }
+            return RankAndSort(solutions);
+        }
+
         public static List<Solution> localMin()
         {
             var solutions = new List<Solution>();

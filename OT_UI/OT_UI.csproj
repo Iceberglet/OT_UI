@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Algorithms\Algorithm.cs" />
     <Compile Include="Algorithms\Evaluator.cs" />
+    <Compile Include="Algorithms\OTVS.cs" />
     <Compile Include="Algorithms\Prior.cs" />
     <Compile Include="Algorithms\MinSeeker.cs" />
     <Compile Include="Algorithms\MO2TOS.cs" />

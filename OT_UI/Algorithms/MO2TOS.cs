@@ -118,9 +118,10 @@ namespace OT_UI
                     else sampled = candidates[rand.Next(candidates.Count)];
                     break;
             }
-            solutionsSampled.Add(sampled);
-            lfNewlySampled.Clear();
-            lfNewlySampled.Add(sampled.LFRank);
+            sample(sampled);
+            //solutionsSampled.Add(sampled);
+            //lfNewlySampled.Clear();
+            //lfNewlySampled.Add(sampled.LFRank);
             return true;
         }
     }

@@ -55,10 +55,11 @@ namespace OT_UI
                 index++;
             }
             //Sample index
-            Solution sampled = candidates[index - 1];
-            solutionsSampled.Add(sampled);
-            lfNewlySampled.Clear();
-            lfNewlySampled.Add(sampled.LFRank);
+            Solution sampled = candidates[index-1];
+            sample(sampled);
+            //solutionsSampled.Add(sampled);
+            //lfNewlySampled.Clear();
+            //lfNewlySampled.Add(sampled.LFRank);
             return false;
         }
         
@@ -67,14 +68,20 @@ namespace OT_UI
             Double currBest = optimum.HFValue;
             solutions.ForEach(delegate(Solution sol)
             {
-                sol.proba = proba(sol, currBest);
+                populateSolProba(sol, currBest);
             });
         }
 
-        private Double proba(Solution sol, Double currBest)
+        private void populateSolProba(Solution sol, Double currBest)
         {
             if (solutionsSampled.Contains(sol))
-                return 0;
+            {
+                sol.proba = 0;
+                sol.a = 0;
+                sol.b = 0;
+                sol.c = 0;
+                return;
+            }
             else
             {
                 //Get the weighted mean
@@ -91,21 +98,29 @@ namespace OT_UI
                 Double varTop = 0, varBtm = 0;
                 foreach (Solution s in solutionsSampled)
                 {
-                    varTop += Math.Pow(decayFactor(s, sol) * (s.HFValue - mean), 2);
+                    varTop += Math.Pow((s.HFValue - mean), 2) * Math.Pow(decayFactor(s, sol), 2);
                     varBtm += Math.Pow(decayFactor(s, sol), 2);
                 }
                 Double stddev = Math.Pow(varTop / varBtm, 0.5);
 
                 //Calculate the prior proba
                 Double p = Normal.CDF(mean, stddev, currBest);
-                return p;
+                sol.proba = p;
+                sol.a = mean + stddev * 2;
+                sol.b = mean;
+                sol.c = mean - stddev * 2;
             }
         }
+
+        private static double smoother = 50;
 
         //Decay Factor for two indices on Solution Axis (LF)
         //Always equal to 1 if distance is 1, and asymptotically goes to 0 as distance goes up
         private Double decayFactor(Solution s1, Solution s2)
         {
+            //Dist is 0 if they are neighbor, otherwise decays exponentially
+            //int dist = Math.Abs(s1.LFRank - s2.LFRank) - 1;
+            //Double p = Math.Exp(-dist / smoother);
             Double p = Math.Pow((s1.LFRank - s2.LFRank), -2); //** IMPORTANT ** LFValue is used instead of LFRank
             return p;
         }

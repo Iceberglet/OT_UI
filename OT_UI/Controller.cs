@@ -69,13 +69,13 @@ namespace OT_UI
         public static void evaluatePerformance()
         {
             
-            evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
-            evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
-            evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
+            //evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
+            //evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
+            //evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
             //evaluateFunction(Utility.localMin(), "Compare_localMin");
             evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
             
-            evaluateFunction(Utility.SixHumpCamel(), "Compare_SixHumpCamel");
+            //evaluateFunction(Utility.SixHumpCamel(), "Compare_SixHumpCamel");
             //evaluateFunction(Utility.Rastrigin(), "Compare_Rastrigin");
         }
 
@@ -141,6 +141,12 @@ namespace OT_UI
             newPoints.Points.Clear();
             Series proba = graph_rank.Series.Where(x => x.Name == "ProbaValue").ToList().First();
             proba.Points.Clear();
+            Series a = graph_rank.Series.Where(x => x.Name == "a").ToList().First();
+            a.Points.Clear();
+            Series b = graph_rank.Series.Where(x => x.Name == "b").ToList().First();
+            b.Points.Clear();
+            Series c = graph_rank.Series.Where(x => x.Name == "c").ToList().First();
+            c.Points.Clear();
             foreach (var i in Enumerable.Range(0, algo.solutions.Count))
             {
                 DataPoint dp = new DataPoint(algo.solutions[i].LFRank, algo.solutions[i].HFValue);
@@ -149,11 +155,23 @@ namespace OT_UI
                 //Double lf = algo.solutions[i].LFValue;
 
                 //For Proba Lines
-                if (algo.solutions[i].proba > 0.0001)
+                if (algo.solutions[i].proba > 0)
                 {
                     DataPoint p = new DataPoint(lf, algo.solutions[i].proba);
                     proba.Points.Add(p);
                 }
+                
+                //For abc Lines
+                if (Math.Abs(algo.solutions[i].a) > 0.0001)
+                {
+                    //DataPoint aa = new DataPoint(lf, algo.solutions[i].a);
+                    //a.Points.Add(aa);
+                    //DataPoint cc = new DataPoint(lf, algo.solutions[i].c);
+                    //c.Points.Add(cc);
+                    DataPoint bb = new DataPoint(lf, algo.solutions[i].b);
+                    b.Points.Add(bb);
+                }
+                
                 //For Data Points
                 if (algo.lfNewlySampled.Contains(lf))
                 {

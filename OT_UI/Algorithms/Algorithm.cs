@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,9 @@ namespace OT_UI
         public int LFRank { get; set; }
         public int HFRank { get; set; }
         public double proba { get; set; }
+        public double a { get; set; }
+        public double b { get; set; }
+        public double c { get; set; }
     }
 
     public abstract class Algorithm
@@ -21,6 +25,7 @@ namespace OT_UI
 
         public List<Solution> solutions { protected set; get; }
         protected HashSet<Solution> solutionsSampled;
+        protected Solution lastSampled;
         public List<int> lfSampled { get { return solutionsSampled.Select(s => s.LFRank).ToList(); } }
         public List<int> lfNewlySampled { get; protected set; }
         
@@ -41,11 +46,33 @@ namespace OT_UI
         protected void sample(Solution s)
         {
             solutionsSampled.Add(s);
+            lfNewlySampled.Clear();
             lfNewlySampled.Add(s.LFRank);
+            lastSampled = s;
         }
 
         public abstract void resetIteration();
 
         public abstract bool iterate();
+
+        public virtual void snapShot(string name, int tryNo)
+        {
+            foreach(Solution s in solutions)
+            {
+                string newLine = s.LFRank + ",";
+                if (solutionsSampled.Contains(s))
+                {
+                    newLine += "," + s.HFRank;
+                } else if (s.HFRank == lastSampled.HFRank)
+                {
+                    newLine += ",," + s.HFRank;
+                } else
+                {
+                    newLine += s.HFRank;
+                }
+                using (var sw = new StreamWriter("SnapChat" + name + "_try_" + tryNo + ".csv", true)) sw.WriteLine(newLine);
+            }
+        }
+        
     }
 }
