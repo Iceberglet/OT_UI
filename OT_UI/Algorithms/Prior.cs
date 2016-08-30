@@ -98,8 +98,8 @@ namespace OT_UI
                 Double varTop = 0, varBtm = 0;
                 foreach (Solution s in solutionsSampled)
                 {
-                    varTop += Math.Pow((s.HFValue - mean), 2) * Math.Pow(decayFactor(s, sol), 2);
-                    varBtm += Math.Pow(decayFactor(s, sol), 2);
+                    varTop += Math.Pow((s.HFValue - mean), 2) * Math.Pow(decayFactor(s, sol), 1);
+                    varBtm += Math.Pow(decayFactor(s, sol), 1);// * (solutionsSampled.Count);
                 }
                 Double stddev = Math.Pow(varTop / varBtm, 0.5);
 
@@ -112,16 +112,16 @@ namespace OT_UI
             }
         }
 
-        private static double smoother = 50;
+        private static double smoother = 0.1;
 
         //Decay Factor for two indices on Solution Axis (LF)
         //Always equal to 1 if distance is 1, and asymptotically goes to 0 as distance goes up
         private Double decayFactor(Solution s1, Solution s2)
         {
             //Dist is 0 if they are neighbor, otherwise decays exponentially
-            //int dist = Math.Abs(s1.LFRank - s2.LFRank) - 1;
+            //double dist = Math.Abs(s1.LFValue - s2.LFValue);
             //Double p = Math.Exp(-dist / smoother);
-            Double p = Math.Pow((s1.LFRank - s2.LFRank), -2); //** IMPORTANT ** LFValue is used instead of LFRank
+            Double p = Math.Pow(Math.Abs(s1.LFValue - s2.LFValue), -1); //** IMPORTANT ** LFValue is used instead of LFRank
             return p;
         }
     }

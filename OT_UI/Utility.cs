@@ -75,13 +75,17 @@ namespace OT_UI
         //Global Minimum at x = 420.9687 when size = 500
         public static List<Solution> Schwefel(int size = 500)
         {
+            Random rand = new Random();
             var solutions = new List<Solution>();
             for (var x = 0; x < size; x+=10)
             {
                 for(var y = 0; y < size; y+=10)
                 {
+                    var newX = (0.9 * x + 0.1 * x * rand.NextDouble());
+                    var newY = (0.9 * y + 0.1 * y * rand.NextDouble());
                     double HfValue = 418.9829 * 2 - x * Math.Sin(Math.Sqrt(x)) - y * Math.Sin(Math.Sqrt(y));
-                    double LfValue = 418.9829 * 2 - x * (int)Math.Sin((int)Math.Sqrt(x)) - y * (int)Math.Sin((int)Math.Sqrt(y));
+                    double LfValue = 418.9829 * 2 - newX * Math.Sin(Math.Sqrt(newX)) - 
+                        newY * Math.Sin(Math.Sqrt(newY));
                     solutions.Add(new Solution
                     {
                         HFValue = HfValue,

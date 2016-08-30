@@ -38,13 +38,14 @@ namespace OT_UI
             graph_avg = graph_a;
             //var solutions = Utility.Rastrigin();
             //var solutions = Utility.SixHumpCamel();
-            var solutions = Utility.Schwefel();
-            //var solutions = Utility.Xu2014(g : 2);
+            //var solutions = Utility.Schwefel();
+            var solutions = Utility.Xu2014(g : 2);
             //var solutions = Utility.GramacyLee();
             //var solutions = Utility.localMin();
             //algo = new MinSeeker(10);
             //algo = new MO2TOS(10);
-            algo = new Prior();
+            //algo = new Prior();
+            algo = new OTVS();
             algo.initialize(solutions);
             updateRankPoints();
             /*
@@ -69,11 +70,11 @@ namespace OT_UI
         public static void evaluatePerformance()
         {
             
-            //evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
-            //evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
+            evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
+            evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
             //evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
             //evaluateFunction(Utility.localMin(), "Compare_localMin");
-            evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
+            //evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
             
             //evaluateFunction(Utility.SixHumpCamel(), "Compare_SixHumpCamel");
             //evaluateFunction(Utility.Rastrigin(), "Compare_Rastrigin");
@@ -85,19 +86,22 @@ namespace OT_UI
             Algorithm mo2tos = new MO2TOS(groupNumbers);
             Algorithm minSeeker = new MinSeeker(groupNumbers);
             Algorithm prior = new Prior();
+            Algorithm otvs = new OTVS();
             mo2tos.initialize(sols);
             minSeeker.initialize(sols);
             prior.initialize(sols);
+            otvs.initialize(sols);
 
             //Configurable
             int totalIteration = 50;
             int samplePerIter = 50;
-            String header = "Names: ," + "MO2TOS" + "," + "MinSeeker" + "," + "PRIOR";// + "," + results3[i];
+            String header = "Names: ,MO2TOS,OTVS";// + "MO2TOS" + "," + "MinSeeker" + "," + "PRIOR";// + "," + results3[i];
             Dictionary<Algorithm, double[]> algoResult = new Dictionary<Algorithm, double[]>();
             algoResult.Add(mo2tos, new double[samplePerIter]);
-            algoResult.Add(minSeeker, new double[samplePerIter]);
-            algoResult.Add(prior, new double[samplePerIter]);
-            
+            algoResult.Add(otvs, new double[samplePerIter]);
+            //algoResult.Add(minSeeker, new double[samplePerIter]);
+            //algoResult.Add(prior, new double[samplePerIter]);
+
 
             //Testing Stage
             for (int i = 0; i < totalIteration; i++)
@@ -110,6 +114,13 @@ namespace OT_UI
                 {
                     foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
                     {
+                        //*********  SnapShot ************
+                        /*
+                        if(j%10 == 0 && i == 0)
+                        {
+                            entry.Key.snapShot(fileName + " OTVS", j);
+                        }*/
+
                         // do something with entry.Value or entry.Key
                         entry.Value[j] += entry.Key.optimum.HFValue;
                         entry.Key.iterate();
@@ -164,10 +175,10 @@ namespace OT_UI
                 //For abc Lines
                 if (Math.Abs(algo.solutions[i].a) > 0.0001)
                 {
-                    //DataPoint aa = new DataPoint(lf, algo.solutions[i].a);
-                    //a.Points.Add(aa);
-                    //DataPoint cc = new DataPoint(lf, algo.solutions[i].c);
-                    //c.Points.Add(cc);
+                    DataPoint aa = new DataPoint(lf, algo.solutions[i].a);
+                    a.Points.Add(aa);
+                    DataPoint cc = new DataPoint(lf, algo.solutions[i].c);
+                    c.Points.Add(cc);
                     DataPoint bb = new DataPoint(lf, algo.solutions[i].b);
                     b.Points.Add(bb);
                 }
