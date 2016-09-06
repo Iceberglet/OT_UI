@@ -77,8 +77,16 @@ namespace OT_UI
         {
             Random rand = new Random();
             var solutions = new List<Solution>();
-            for (var x = 0; x < size; x+=10)
+            for (var x = 0; x < size; x+=1)
             {
+                double LfValue = x;
+                double HfValue = 418.9829 * 2 - x * Math.Sin(Math.Sqrt(x)) - x * Math.Sin(Math.Sqrt(x));
+                solutions.Add(new Solution
+                {
+                    HFValue = HfValue,
+                    LFValue = LfValue,
+                });
+                /*
                 for(var y = 0; y < size; y+=10)
                 {
                     var newX = (0.9 * x + 0.1 * x * rand.NextDouble());
@@ -91,7 +99,7 @@ namespace OT_UI
                         HFValue = HfValue,
                         LFValue = LfValue,
                     });
-                }
+                }*/
             }
             return RankAndSort(solutions);
         }

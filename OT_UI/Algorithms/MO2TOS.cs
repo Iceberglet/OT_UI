@@ -30,8 +30,8 @@ namespace OT_UI
             for (int i = 0; i < solutions.Count; i++)
                 solutionGroups[i * groupNumber / solutions.Count].Add(solutions[i]);
             //Sample two solutions from each of 10 groups
-            int groupSize = solutions.Count / 10;
-            for (int i = 0; i < 10; i++)
+            int groupSize = solutions.Count / groupNumber;
+            for (int i = 0; i < groupNumber; i++)
             {
                 int idxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
                 int secondIdxToSample = randForNewSamples.Next(1, groupSize) + i * groupSize;
@@ -59,8 +59,11 @@ namespace OT_UI
         public override bool iterate()
         {
             var positiveRatios = OCBAMarginalRatios.Select(r => Math.Max(0, r)).ToArray();
-            while (true)
+            int numberOfTries = 1000;
+            int x = 0;
+            while (x < numberOfTries)
             {
+                x++;
                 var sum = rand.NextDouble() * positiveRatios.Sum();
                 for (int i = 0; i < positiveRatios.Length; i++)
                 {
@@ -68,6 +71,7 @@ namespace OT_UI
                     if (sum < 0 && Sample(solutionGroups[i])) return true;
                 }
             }
+            return false;
         }
 
 
@@ -123,6 +127,11 @@ namespace OT_UI
             //lfNewlySampled.Clear();
             //lfNewlySampled.Add(sampled.LFRank);
             return true;
+        }
+
+        public override int getStartingPoint()
+        {
+            return 2*groupNumber + 1;
         }
     }
 }

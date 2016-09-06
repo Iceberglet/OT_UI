@@ -38,14 +38,14 @@ namespace OT_UI
             graph_avg = graph_a;
             //var solutions = Utility.Rastrigin();
             //var solutions = Utility.SixHumpCamel();
-            //var solutions = Utility.Schwefel();
-            var solutions = Utility.Xu2014(g : 2);
+            var solutions = Utility.Schwefel();
+            //var solutions = Utility.Xu2014(g : 2);
             //var solutions = Utility.GramacyLee();
             //var solutions = Utility.localMin();
             //algo = new MinSeeker(10);
             //algo = new MO2TOS(10);
             //algo = new Prior();
-            algo = new OTVS();
+            algo = new OTVS(2);
             algo.initialize(solutions);
             updateRankPoints();
             /*
@@ -70,35 +70,50 @@ namespace OT_UI
         public static void evaluatePerformance()
         {
             
-            evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
-            evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
+            //evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
+            //evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
             //evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
             //evaluateFunction(Utility.localMin(), "Compare_localMin");
-            //evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
+            evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
             
             //evaluateFunction(Utility.SixHumpCamel(), "Compare_SixHumpCamel");
             //evaluateFunction(Utility.Rastrigin(), "Compare_Rastrigin");
         }
 
         //Compare MO2TOS and US
-        public static void evaluateFunction(List<Solution> sols, String fileName, int groupNumbers = 10)
+        public static void evaluateFunction(List<Solution> sols, String fileName)
         {
-            Algorithm mo2tos = new MO2TOS(groupNumbers);
-            Algorithm minSeeker = new MinSeeker(groupNumbers);
+            Algorithm mo2tos10 = new MO2TOS(10);
+            Algorithm mo2tos20 = new MO2TOS(20);
+            Algorithm mo2tos5 = new MO2TOS(5);
+            mo2tos10.initialize(sols);
+            mo2tos20.initialize(sols);
+            mo2tos5.initialize(sols);
+            Algorithm otvs2 = new OTVS(2);
+            Algorithm otvs4 = new OTVS(4);
+            Algorithm otvs6 = new OTVS(6);
+            otvs2.initialize(sols);
+            otvs4.initialize(sols);
+            otvs6.initialize(sols);
+            /*
+            Algorithm minSeeker = new MinSeeker(10);
             Algorithm prior = new Prior();
-            Algorithm otvs = new OTVS();
-            mo2tos.initialize(sols);
             minSeeker.initialize(sols);
-            prior.initialize(sols);
-            otvs.initialize(sols);
+            prior.initialize(sols);*/
 
             //Configurable
-            int totalIteration = 50;
-            int samplePerIter = 50;
-            String header = "Names: ,MO2TOS,OTVS";// + "MO2TOS" + "," + "MinSeeker" + "," + "PRIOR";// + "," + results3[i];
+            int totalIteration = 1;
+            int samplePerIter = 80;
+            String header = "Names: ,MO2TOS(k=10), OTVS(p=4)";
+                //"Names: ,MO2TOS(k=10), MO2TOS(k=20), MO2TOS(k=5), OTVS(p=2), OTVS(p=4), OTVS(p=6)";
+            // + "MO2TOS" + "," + "MinSeeker" + "," + "PRIOR";// + "," + results3[i];
             Dictionary<Algorithm, double[]> algoResult = new Dictionary<Algorithm, double[]>();
-            algoResult.Add(mo2tos, new double[samplePerIter]);
-            algoResult.Add(otvs, new double[samplePerIter]);
+            //algoResult.Add(mo2tos10, new double[samplePerIter]);
+            //algoResult.Add(mo2tos20, new double[samplePerIter]);
+            //algoResult.Add(mo2tos5, new double[samplePerIter]);
+            //algoResult.Add(otvs2, new double[samplePerIter]);
+            //algoResult.Add(otvs4, new double[samplePerIter]);
+            algoResult.Add(otvs6, new double[samplePerIter]);
             //algoResult.Add(minSeeker, new double[samplePerIter]);
             //algoResult.Add(prior, new double[samplePerIter]);
 
@@ -115,11 +130,12 @@ namespace OT_UI
                     foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
                     {
                         //*********  SnapShot ************
-                        /*
+                        
+                        
                         if(j%10 == 0 && i == 0)
                         {
                             entry.Key.snapShot(fileName + " OTVS", j);
-                        }*/
+                        }
 
                         // do something with entry.Value or entry.Key
                         entry.Value[j] += entry.Key.optimum.HFValue;
@@ -127,17 +143,21 @@ namespace OT_UI
                     }
                 }
             }
-
+            /*
             using (var sw = new StreamWriter(fileName + ".csv", true)) sw.WriteLine(header);
             for (int i = 0; i < samplePerIter; i++)
             {
-                String newLine = (i + groupNumbers * 2 + 1).ToString();
+                int iter = i + 1;
+                String newLine = iter.ToString();
                 foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
                 {
-                    newLine += "," + entry.Value[i] / totalIteration;
+                    int start = entry.Key.getStartingPoint();
+                    if (iter >= start && iter - start < entry.Value.Length && iter <= samplePerIter)
+                        newLine += "," + entry.Value[iter - start] / totalIteration;
+                    else newLine += ",";
                 }
                 using (var sw = new StreamWriter(fileName + ".csv", true)) sw.WriteLine(newLine);
-            }
+            }*/
         }
 
 

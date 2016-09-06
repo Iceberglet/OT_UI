@@ -57,21 +57,30 @@ namespace OT_UI
 
         public virtual void snapShot(string name, int tryNo)
         {
-            foreach(Solution s in solutions)
+            String header = "Legend:, Probability, Unsampled, Sampled, Last Sample";
+            using (var sw = new StreamWriter("SnapChat" + name + "_try_" + tryNo + ".csv", true)) sw.WriteLine(header);
+            foreach (Solution s in solutions)
             {
-                string newLine = s.LFRank + ",";
-                if (solutionsSampled.Contains(s))
-                {
-                    newLine += "," + s.HFRank;
-                } else if (s.HFRank == lastSampled.HFRank)
+                string newLine = s.LFRank + "," + (s.proba > 0 ? s.proba.ToString() : "") + "," ;
+                //Datapoint, Sampled, LastSampled
+                if (s == lastSampled)
                 {
                     newLine += ",," + s.HFRank;
+                }
+                else if (solutionsSampled.Contains(s))
+                {
+                    newLine += "," + s.HFRank;
                 } else
                 {
                     newLine += s.HFRank;
                 }
                 using (var sw = new StreamWriter("SnapChat" + name + "_try_" + tryNo + ".csv", true)) sw.WriteLine(newLine);
             }
+        }
+
+        public virtual int getStartingPoint()
+        {
+            return 1;
         }
         
     }

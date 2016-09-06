@@ -16,15 +16,18 @@ namespace OT_UI
         /// </summary>
         [STAThread]
         static void Main()
-        { 
+        {
             /*
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
             */
-    
 
-            Controller.evaluatePerformance();
+            OTVS otvs = new OTVS(4);
+            otvs.initialize(Utility.localMin());
+            otvs.printCorrelationCoefficient();
+
+            //Controller.evaluatePerformance();
 
             //testChi();
         }
