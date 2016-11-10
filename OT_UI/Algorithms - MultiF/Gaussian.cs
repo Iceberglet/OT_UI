@@ -15,7 +15,7 @@ namespace OT_UI
     {
         GP[] gps;
 
-        public Gaussian(List<SolutionMultiF> sols) : base(sols)
+        public Gaussian(IReadOnlyCollection<SolutionMultiF> sols) : base(sols)
         {
             this.solutions = sols;
             initialize();
@@ -41,7 +41,7 @@ namespace OT_UI
             for (int i = 0; i < num; i++)
             {
                 var idx = solutions.Count / num * i + rand.Next(0, solutions.Count / num);
-                SolutionMultiF s = solutions.Find(ss => ss.lfs[0].xRank == idx);
+                SolutionMultiF s = solutions.ToList().Find(ss => ss.yRank == idx);
                 sample(solutions.ElementAt(idx));
                 for (int lf = 0; lf < fidelities; lf++)
                 {
@@ -49,7 +49,7 @@ namespace OT_UI
                 }
             }
 
-            solutions.ForEach(s =>
+            solutions.ToList().ForEach(s =>
             {
                 //Generate the fidelity rankings for each fidelity
                 for (int lf = 0; lf < fidelities; lf++)
@@ -109,22 +109,22 @@ namespace OT_UI
                 }
                 posteriorMean /= sumOfWeightedVars;
                 
+                posteriorProbas[i] = Normal.CDF(posteriorMean, posteriorSd, optimum.y);
+                solutions.ElementAt(i).proba = posteriorProbas[i];
+                solutions.ElementAt(i).upper = posteriorMean + 1.96 * posteriorSd;
+                solutions.ElementAt(i).lower = posteriorMean - 1.96 * posteriorSd;
                 //Proba need to be zero if already sampled
                 if (sampled.Contains(solutions.ElementAt(i)))
                 {
                     posteriorProbas[i] = 0;
                 }
-                else posteriorProbas[i] = Normal.CDF(posteriorMean, posteriorSd, optimum.y);
-                solutions.ElementAt(i).proba = posteriorProbas[i];
-                solutions.ElementAt(i).upper = posteriorMean + 1.96 * posteriorSd;
-                solutions.ElementAt(i).lower = posteriorMean - 1.96 * posteriorSd;
             }
 
             int nextSample = Utility.SampleAmong(posteriorProbas);
-            var sol = solutions.Find(s => s.yRank == nextSample);
+            var sol = solutions.ElementAt(nextSample);
 
-            for(int i = 0; i < gps.Length; i++)
-            gps[i].addPoint(new XYPair(GPUtility.V(sol.lfs[i].xRank), sol.y));
+            for (int i = 0; i < gps.Length; i++)
+                gps[i].addPoint(new XYPair(GPUtility.V(sol.lfs[i].xRank), sol.y));
 
             sample(sol);
             //Utility.printToFile("test.csv", posteriorProbas);

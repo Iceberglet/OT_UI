@@ -10,7 +10,7 @@ namespace OT_UI
 {
     public abstract class AlgorithmMultiF
     {
-        public List<SolutionMultiF> solutions { get; protected set; }
+        public IReadOnlyCollection<SolutionMultiF> solutions { get; protected set; }
         public List<SolutionMultiF> sampled { get; protected set; }
         public SolutionMultiF lastSample;
         protected readonly static Random rand = new Random();
@@ -18,7 +18,7 @@ namespace OT_UI
         //The one with MINIMUM y value
         public SolutionMultiF optimum { get { return sampled.Aggregate((agg, next) => next.y < agg.y ? next : agg); } }
 
-        public AlgorithmMultiF(List<SolutionMultiF> sols)
+        public AlgorithmMultiF(IReadOnlyCollection<SolutionMultiF> sols)
         {
             this.solutions = sols;
         }

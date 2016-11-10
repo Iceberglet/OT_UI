@@ -8,7 +8,7 @@ namespace OT_UI
 {
     public class SolutionMultiF
     {
-        public readonly int idx;
+        public readonly int idx;        //Only used by plotter to make graph nicer. Essentially same to one of fidelity rank
         public readonly double y;
         public readonly int yRank;
         public SolutionSingleF[] lfs { get; private set; }

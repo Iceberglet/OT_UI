@@ -63,13 +63,13 @@ namespace OT_UI
         }
 
         
-        public static void evaluateFunction(List<SolutionMultiF> sols, String fileName)
+        public static void evaluateFunction(IReadOnlyCollection<SolutionMultiF> sols, String fileName)
         {
             AlgorithmMultiF gaussian = new Gaussian(sols);
             gaussian.initialize();
 
             //Configurable
-            int totalIteration = 20;
+            int totalIteration = 1;
             int samplePerIter = 65;
             String header = "Names: ,Prior, Response Surface, MO2TOS(k=10)";
                 //"Names: ,MO2TOS(k=10), MO2TOS(k=20), MO2TOS(k=5), OTVS(p=2), OTVS(p=4), OTVS(p=6)";
@@ -140,23 +140,24 @@ namespace OT_UI
             foreach (var i in Enumerable.Range(0, algo.solutions.Count))
             {
                 /***** IMPORTANT: Plot by Rank OR Value *****/
-                Double x = algo.solutions[i].idx;
+                SolutionMultiF s = algo.solutions.ElementAt(i);
+                Double x = s.idx;
                 //Double lf = algo.solutions[i].LFValue;
 
 
-                DataPoint dp = new DataPoint(x, algo.solutions[i].y);
+                DataPoint dp = new DataPoint(x, s.y);
                 //DataPoint dp = new DataPoint(algo.solutions[i].LFValue, algo.solutions[i].HFValue);
                 
                 //For Proba Lines
-                if (algo.solutions[i].proba > 0)
+                if (algo.solutions.ElementAt(i).proba > 0)
                 {
-                    DataPoint p = new DataPoint(x, algo.solutions[i].proba);
+                    DataPoint p = new DataPoint(x, s.proba);
                     proba_left.Points.Add(p);
                 }
                 
-                DataPoint upper = new DataPoint(x, algo.solutions[i].upper);
+                DataPoint upper = new DataPoint(x, s.upper);
                 upper_left.Points.Add(upper);
-                DataPoint lower = new DataPoint(x, algo.solutions[i].lower);
+                DataPoint lower = new DataPoint(x, s.lower);
                 lower_left.Points.Add(lower);
                 //For abc Lines
                 /*
@@ -171,14 +172,14 @@ namespace OT_UI
                 }*/
 
                 //For Data Points
-                if (algo.lastSample == algo.solutions[i])
+                if (algo.lastSample == s)
                 {
                     dp.MarkerSize = 15;
                     dp.MarkerColor = System.Drawing.Color.Violet;
                     dp.MarkerStyle = MarkerStyle.Diamond;
                     newPoints_left.Points.Add(dp);
                 }
-                else if(algo.sampled.Contains(algo.solutions[i]))
+                else if(algo.sampled.Contains(s))
                     sampled_left.Points.Add(dp);
                 else
                     otherPoints_left.Points.Add(dp);

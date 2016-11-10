@@ -17,13 +17,13 @@ namespace OT_UI
         [STAThread]
         static void Main()
         {
-            /*
+            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-            */
+            
 
-            Controller.evaluateFunction(Utility.Xu2014MultiF(), "GaussianWorking.csv");
+            //Controller.evaluateFunction(Utility.Xu2014MultiF(), "Test");
 
             //Utility.exportExcel(Utility.Xu2014(3), "XuEtAlG3");
 

@@ -12,26 +12,26 @@ namespace OT_UI
     {
         private static readonly Random rand = new Random();
 
-        public static List<SolutionMultiF> Xu2014MultiF()   //Uses G2 and G3
+        public static IReadOnlyCollection<SolutionMultiF> Xu2014MultiF()   //Uses G2 and G3
         {
             List<SolutionMultiF> res = new List<SolutionMultiF>();
             List<Solution> sols = Xu2014(2);
-            int idx = 1;
             sols.ForEach(s =>
             {
-                SolutionMultiF ss = new SolutionMultiF(s.HFValue, s.HFRank, 2, idx++);
+                SolutionMultiF ss = new SolutionMultiF(s.HFValue, s.HFRank, 2, s.LFRank);
                 ss.lfs[0] = new SolutionSingleF(s.HFValue, s.HFRank, s.LFValue, s.LFRank);
                 res.Add(ss);
             });
 
             
-            sols = Xu2014(3);
-            sols.ForEach(s =>
+            var solsAnother = Xu2014(3);
+            solsAnother.ForEach(s =>
             {
                 res.Find(ss => ss.yRank == s.HFRank).lfs[1] = new SolutionSingleF(s.HFValue, s.HFRank, s.LFValue, s.LFRank);
             });
 
-            return res.OrderBy(s => s.yRank).ToList();
+            var r = res.OrderBy(s => s.yRank).ToList().AsReadOnly();
+            return r;
             //return res.OrderBy(s => s.lfs[0].xRank).ToList();
         }
 
