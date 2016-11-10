@@ -100,7 +100,7 @@ namespace OT_UI
         //Sampling Meta Control
         private void button_speed_initialize(object sender, EventArgs e)
         {
-            Controller.Initialize(this, graph_rank, graph_average);
+            Controller.Initialize(this, graph_rank, graph_rank2);
         }
 
         /*
@@ -174,6 +174,11 @@ namespace OT_UI
             speed_1.Enabled = true;
             speed_2.Enabled = true;
             speed_3.Enabled = true;
+        }
+
+        private void graph_rank_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

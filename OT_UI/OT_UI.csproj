@@ -33,9 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GaussianRegression">
+      <HintPath>..\..\GaussianRegression\GaussianRegression\bin\Debug\GaussianRegression.exe</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics">
       <HintPath>..\packages\MathNet.Numerics.3.11.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
@@ -50,9 +54,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms - MultiF\AlgorithmMultiF.cs" />
+    <Compile Include="Algorithms - MultiF\Gaussian.cs" />
+    <Compile Include="Algorithms - MultiF\SolutionMultiF.cs" />
     <Compile Include="Algorithms\Algorithm.cs" />
     <Compile Include="Algorithms\Evaluator.cs" />
+    <Compile Include="Algorithms\GaussianSingle.cs" />
     <Compile Include="Algorithms\OTVS.cs" />
+    <Compile Include="Algorithms\Kernel.cs" />
+    <Compile Include="Algorithms\Prior - ResponseSurface.cs" />
     <Compile Include="Algorithms\Prior.cs" />
     <Compile Include="Algorithms\MinSeeker.cs" />
     <Compile Include="Algorithms\MO2TOS.cs" />

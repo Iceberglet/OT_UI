@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.Distributions;
@@ -9,6 +10,48 @@ namespace OT_UI
 {
     public static class Utility
     {
+        private static readonly Random rand = new Random();
+
+        public static List<SolutionMultiF> Xu2014MultiF()   //Uses G2 and G3
+        {
+            List<SolutionMultiF> res = new List<SolutionMultiF>();
+            List<Solution> sols = Xu2014(2);
+            int idx = 1;
+            sols.ForEach(s =>
+            {
+                SolutionMultiF ss = new SolutionMultiF(s.HFValue, s.HFRank, 2, idx++);
+                ss.lfs[0] = new SolutionSingleF(s.HFValue, s.HFRank, s.LFValue, s.LFRank);
+                res.Add(ss);
+            });
+
+            
+            sols = Xu2014(3);
+            sols.ForEach(s =>
+            {
+                res.Find(ss => ss.yRank == s.HFRank).lfs[1] = new SolutionSingleF(s.HFValue, s.HFRank, s.LFValue, s.LFRank);
+            });
+
+            return res.OrderBy(s => s.yRank).ToList();
+            //return res.OrderBy(s => s.lfs[0].xRank).ToList();
+        }
+
+        public static int SampleAmong(double[] probas)
+        {
+            double target = rand.NextDouble() * probas.Sum();
+            int counter = -1;
+            while(target > 0)
+            {
+                counter++;
+                target -= probas[counter];
+            }
+            return counter;
+        }
+
+        public static void printToFile(string path, double[] probas)
+        {
+            File.AppendAllText(path, string.Join(",", probas) + '\n');
+        }
+
 
         public static List<Solution> Xu2014(int g)
         {
@@ -24,7 +67,8 @@ namespace OT_UI
                 }
                 solutions.Add(new Solution
                 {
-                    HFValue = -(Math.Pow(Math.Sin(0.09 * Math.PI * x), 6) / Math.Pow(2, 2 * Math.Pow((x - 10) / 80, 2)) + 0.1 * Math.Cos(0.5 * Math.PI * x) + 0.5 * Math.Pow((x - 40) / 60, 2) + 0.4 * Math.Sin((x + 10) / 100 * Math.PI)),
+                    HFValue = -(Math.Pow(Math.Sin(0.09 * Math.PI * x), 6) / Math.Pow(2, 2 * Math.Pow((x - 10) / 80, 2)) + 
+                            0.1 * Math.Cos(0.5 * Math.PI * x) + 0.5 * Math.Pow((x - 40) / 60, 2) + 0.4 * Math.Sin((x + 10) / 100 * Math.PI)),
                     LFValue = lfValue,
                 });
             }
@@ -229,7 +273,7 @@ namespace OT_UI
         // Returns a value between [-n(n-1)/2, n(n-1)/2]
         public static double KendallRank(List<int> lfOrder, bool normalize)
         {
-            if (lfOrder.Count < 2) return 1;
+            if (lfOrder.Count < 2) return 0;
             int numer = 0;
             for (int i = 1; i < lfOrder.Count; i++)
                 for (int j = 0; j < i; j++)
@@ -237,6 +281,88 @@ namespace OT_UI
             if(!normalize)
                 return (double)numer;
             else return 1.0 * numer / lfOrder.Count / (lfOrder.Count - 1) * 2;
+        }
+
+        public static void exportExcel(List<Solution> sols, string name)
+        {
+            Random r = new Random();
+            sols = sols.OrderBy(s => s.LFRank).ToList();
+            Solution sol1 = null, sol2 = null;
+            string previousLine = "";
+            int good = 0, bad = 0;
+            foreach(Solution sol in sols)
+            {
+                List<int> left = sols.Where(s => s.LFRank <= sol.LFRank).Select(s => s.HFRank).ToList();
+                List<int> right = sols.Where(s => s.LFRank >= sol.LFRank).Select(s => s.HFRank).ToList();
+                Double leftK = - KendallRank(left, true);
+                Double rightK = KendallRank(right, true);
+                Double K = (leftK + rightK) / 2;
+
+                string line;
+                /*
+                if (r.NextDouble() < 0.03) //sampled
+                    line = sol.LFRank + ",," + sol.HFRank + "," + leftK + "," + rightK + "," + K;
+                else line = sol.LFRank + "," + sol.HFRank + ",," + leftK + "," + rightK + "," + K;*/
+                if (r.NextDouble() < 0.02)
+                    line = sol.LFRank + "," + sol.HFRank + ",," + K;
+                else
+                    line = sol.LFRank + ",," + sol.HFRank + "," + K;
+                sol.proba = K;
+
+                /*
+                if(sol2 == null)
+                {
+                    sol2 = sol;
+                } else if (sol1 == null)
+                {
+                    sol1 = sol;
+                    previousLine = line;
+                } else
+                {
+                    if(sol2.proba < sol1.proba && sol.proba < sol1.proba)
+                    {
+                        //we have a local max!
+                        if (sol2.HFRank > sol1.HFRank && sol.HFRank > sol1.HFRank)
+                        {
+                            previousLine += ",1";
+                            good++;
+                        }
+                        else
+                        {
+                            bad++;
+                            previousLine += ",0";
+                        }
+                    }
+                    using (var sw = new StreamWriter(name + ".csv", true)) sw.WriteLine(previousLine);
+                    previousLine = line;
+                    sol2 = sol1;
+                    sol1 = sol;
+                }*/
+
+
+
+                using (var sw = new StreamWriter(name + ".csv", true)) sw.WriteLine(line);
+            }
+            //using (var sw = new StreamWriter(name + ".csv", true)) sw.WriteLine(good +","+ bad);
+
+        }
+
+        public static void exportExcel<T>(string fileName, params List<T>[] lists)
+        {
+            int length = lists[0].Count;
+            if (!lists.All(l => l.Count == length))
+                throw new Exception("All lists must have same length! ");
+
+            var arr = new List<String>();
+            for(int i = 0; i < length; i++)
+            {
+                string s = "";
+                for (int j = 0; j < lists.Length; j++)
+                    s += "," + lists[j].ElementAt(i).ToString();
+                arr.Add(s);
+            }
+
+            File.WriteAllLines(fileName, arr);
         }
 
         public static double InvNormal(Double x, Double mean = 0, Double stddev = 1)

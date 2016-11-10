@@ -23,9 +23,15 @@ namespace OT_UI
             Application.Run(new Form1());
             */
 
+            Controller.evaluateFunction(Utility.Xu2014MultiF(), "GaussianWorking.csv");
+
+            //Utility.exportExcel(Utility.Xu2014(3), "XuEtAlG3");
+
+            /*
             OTVS otvs = new OTVS(4);
             otvs.initialize(Utility.localMin());
             otvs.printCorrelationCoefficient();
+            */
 
             //Controller.evaluatePerformance();
 

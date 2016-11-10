@@ -24,8 +24,8 @@ namespace OT_UI
         protected static Random rand = new Random(0);
 
         public List<Solution> solutions { protected set; get; }
-        protected HashSet<Solution> solutionsSampled;
-        protected Solution lastSampled;
+        public HashSet<Solution> solutionsSampled;
+        public Solution lastSampled;
         public List<int> lfSampled { get { return solutionsSampled.Select(s => s.LFRank).ToList(); } }
         public List<int> lfNewlySampled { get; protected set; }
         

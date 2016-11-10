@@ -8,19 +8,67 @@ using MathNet.Numerics.Distributions;
 
 namespace OT_UI
 {
-    public class Prior : Algorithm
+    public abstract class KernelFunction
+    {
+        protected double center;
+        protected static readonly double h = 1;  //being the height at the center
+
+        public KernelFunction(double center)
+        {
+            this.center = center;
+        }
+
+        //Returns K(x), the CUMULATIVE Probability
+        public abstract double getProba(double x);
+    }
+
+    public class TriangularKernel : KernelFunction
+    {
+        protected static new readonly double h = 1;
+        public TriangularKernel(double center) : base(center){}
+
+        // 0    *@1/h*   ...  *h @center*  ...  *@1/h*   0
+        public override double getProba(double x) 
+        {
+            double w = 1 / h;
+            double dist = x - center;
+            //width is 1/h
+            if(Math.Abs(dist) < w)
+            {
+                double b = w - Math.Abs(dist);
+                double area = (b / w * h) * b / 2;
+                if (dist < 0)  //x is to the left of center
+                {
+                    return area;
+                }
+                else
+                {
+                    return 1 - area;
+                }
+            } else if (x < center)
+            {
+                return 0;
+            } else
+            {
+                return 1;
+            }
+        }
+    }
+
+
+    public class Kernel : Algorithm
     {
 
         private Random randForNewSamples = new Random(0);
 
-        public Prior()
+        public Kernel()
         {
         }
 
         public override void initialize(List<Solution> solutions)
         {
             base.initialize(solutions);
-            //Sample two solutions from each of 10 groups
+            //Sample two solutions from each of 10 groups in order to compare with MO2TOS
             int groupSize = solutions.Count / 10;
             for (int i = 0; i < 10; i++)
             {
@@ -120,11 +168,6 @@ namespace OT_UI
             //Double p = Math.Exp(-dist / smoother);
             Double p = Math.Pow(Math.Abs(s1.LFValue - s2.LFValue), -1); //** IMPORTANT ** LFValue is used instead of LFRank
             return p;
-        }
-
-        public override int getStartingPoint()
-        {
-            return 21;
         }
     }
 }

@@ -45,7 +45,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.graph_rank = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.graph_average = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.graph_rank2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.group_proba = new System.Windows.Forms.GroupBox();
             this.radio_strategy_kernel = new System.Windows.Forms.RadioButton();
             this.radio_strategy_tour = new System.Windows.Forms.RadioButton();
@@ -75,7 +75,7 @@
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.graph_rank)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.graph_average)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.graph_rank2)).BeginInit();
             this.group_proba.SuspendLayout();
             this.group_filter.SuspendLayout();
             this.group_kendall.SuspendLayout();
@@ -116,7 +116,7 @@
             // 
             // splitContainer2.Panel2
             // 
-            this.splitContainer2.Panel2.Controls.Add(this.graph_average);
+            this.splitContainer2.Panel2.Controls.Add(this.graph_rank2);
             this.splitContainer2.Size = new System.Drawing.Size(1404, 592);
             this.splitContainer2.SplitterDistance = 702;
             this.splitContainer2.TabIndex = 0;
@@ -163,42 +163,37 @@
             series1.Color = System.Drawing.Color.Gray;
             series1.Legend = "Legend1";
             series1.Name = "Ranks";
-            series1.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
             series2.Color = System.Drawing.Color.Red;
             series2.Legend = "Legend1";
-            series2.Name = "a";
-            series2.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
+            series2.Name = "upper";
             series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
             series3.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             series3.Legend = "Legend1";
-            series3.Name = "b";
-            series3.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
+            series3.Name = "lower";
             series4.ChartArea = "ChartArea1";
             series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series4.Legend = "Legend1";
             series4.Name = "c";
-            series4.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series5.ChartArea = "ChartArea1";
             series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
             series5.Color = System.Drawing.Color.Red;
             series5.Legend = "Legend1";
             series5.Name = "Sampled";
-            series5.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series6.ChartArea = "ChartArea1";
             series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
             series6.Color = System.Drawing.Color.Fuchsia;
             series6.Legend = "Legend1";
             series6.Name = "Filter";
-            series6.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series6.YValuesPerPoint = 2;
             series7.ChartArea = "ChartArea2";
-            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
             series7.Color = System.Drawing.Color.Blue;
             series7.Legend = "Legend1";
             series7.Name = "ProbaValue";
+            series7.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             this.graph_rank.Series.Add(series1);
             this.graph_rank.Series.Add(series2);
             this.graph_rank.Series.Add(series3);
@@ -209,22 +204,23 @@
             this.graph_rank.Size = new System.Drawing.Size(699, 589);
             this.graph_rank.TabIndex = 0;
             this.graph_rank.Text = "chart1";
+            this.graph_rank.Click += new System.EventHandler(this.graph_rank_Click);
             // 
-            // graph_average
+            // graph_rank2
             // 
             chartArea3.Name = "ChartArea1";
-            this.graph_average.ChartAreas.Add(chartArea3);
+            this.graph_rank2.ChartAreas.Add(chartArea3);
             legend2.Name = "Legend1";
-            this.graph_average.Legends.Add(legend2);
-            this.graph_average.Location = new System.Drawing.Point(3, 0);
-            this.graph_average.Name = "graph_average";
+            this.graph_rank2.Legends.Add(legend2);
+            this.graph_rank2.Location = new System.Drawing.Point(3, 0);
+            this.graph_rank2.Name = "graph_rank2";
             series8.ChartArea = "ChartArea1";
             series8.Legend = "Legend1";
             series8.Name = "Series1";
-            this.graph_average.Series.Add(series8);
-            this.graph_average.Size = new System.Drawing.Size(699, 589);
-            this.graph_average.TabIndex = 1;
-            this.graph_average.Text = "chart1";
+            this.graph_rank2.Series.Add(series8);
+            this.graph_rank2.Size = new System.Drawing.Size(699, 589);
+            this.graph_rank2.TabIndex = 1;
+            this.graph_rank2.Text = "chart1";
             // 
             // group_proba
             // 
@@ -471,7 +467,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.graph_rank)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.graph_average)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.graph_rank2)).EndInit();
             this.group_proba.ResumeLayout(false);
             this.group_proba.PerformLayout();
             this.group_filter.ResumeLayout(false);
@@ -508,7 +504,7 @@
         private System.Windows.Forms.RadioButton radio_strategy_det;
         private System.Windows.Forms.RadioButton radio_strategy_kernel;
         private System.Windows.Forms.DataVisualization.Charting.Chart graph_rank;
-        private System.Windows.Forms.DataVisualization.Charting.Chart graph_average;
+        private System.Windows.Forms.DataVisualization.Charting.Chart graph_rank2;
     }
 }
 

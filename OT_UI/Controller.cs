@@ -25,7 +25,7 @@ namespace OT_UI
         //private static Thread iterator;
         private static Chart graph_rank;
         private static Chart graph_avg;
-        private static Algorithm algo;
+        private static AlgorithmMultiF algo; // = new Gaussian();
         
         //Called when initialize is clicked
 
@@ -36,28 +36,18 @@ namespace OT_UI
             //set up rank graph
             graph_rank = graph_r;
             graph_avg = graph_a;
-            //var solutions = Utility.Rastrigin();
-            //var solutions = Utility.SixHumpCamel();
-            var solutions = Utility.Schwefel();
-            //var solutions = Utility.Xu2014(g : 2);
-            //var solutions = Utility.GramacyLee();
-            //var solutions = Utility.localMin();
-            //algo = new MinSeeker(10);
-            //algo = new MO2TOS(10);
-            //algo = new Prior();
-            algo = new OTVS(2);
-            algo.initialize(solutions);
-            updateRankPoints();
+
             /*
-            var sol1 = Utility.Xu2014(1);
-            var sol2 = Utility.Xu2014(2);
-            var sol3 = Utility.Xu2014(3);
-            var res = "";
-            res += Utility.hasMinKendallAtOptimum(solutions) + "\n";
-            res += Utility.hasMinKendallAtOptimum(sol1) + "\n";
-            res += Utility.hasMinKendallAtOptimum(sol2) + "\n";
-            res += Utility.hasMinKendallAtOptimum(sol3) + "\n";
-            System.Windows.Forms.MessageBox.Show(res);*/
+            var solutions = Utility.Xu2014(g : 2);
+            algo = new GaussianSingle();
+            algo.initialize(solutions);*/
+
+            
+            var solutions = Utility.Xu2014MultiF();
+            algo = new Gaussian(solutions);
+            algo.initialize();
+            
+            updateRankPoints();
         }
 
         //Called repeatedly after Initialize
@@ -69,87 +59,56 @@ namespace OT_UI
 
         public static void evaluatePerformance()
         {
-            
-            //evaluateFunction(Utility.Xu2014(g: 1), "Compare_Xu2014G1");
-            //evaluateFunction(Utility.Xu2014(g: 2), "Compare_Xu2014G2");
-            //evaluateFunction(Utility.Xu2014(g: 3), "Compare_Xu2014G3");
-            //evaluateFunction(Utility.localMin(), "Compare_localMin");
-            evaluateFunction(Utility.Schwefel(), "Compare_Schwefel");
-            
-            //evaluateFunction(Utility.SixHumpCamel(), "Compare_SixHumpCamel");
-            //evaluateFunction(Utility.Rastrigin(), "Compare_Rastrigin");
+
         }
 
-        //Compare MO2TOS and US
-        public static void evaluateFunction(List<Solution> sols, String fileName)
+        
+        public static void evaluateFunction(List<SolutionMultiF> sols, String fileName)
         {
-            Algorithm mo2tos10 = new MO2TOS(10);
-            Algorithm mo2tos20 = new MO2TOS(20);
-            Algorithm mo2tos5 = new MO2TOS(5);
-            mo2tos10.initialize(sols);
-            mo2tos20.initialize(sols);
-            mo2tos5.initialize(sols);
-            Algorithm otvs2 = new OTVS(2);
-            Algorithm otvs4 = new OTVS(4);
-            Algorithm otvs6 = new OTVS(6);
-            otvs2.initialize(sols);
-            otvs4.initialize(sols);
-            otvs6.initialize(sols);
-            /*
-            Algorithm minSeeker = new MinSeeker(10);
-            Algorithm prior = new Prior();
-            minSeeker.initialize(sols);
-            prior.initialize(sols);*/
+            AlgorithmMultiF gaussian = new Gaussian(sols);
+            gaussian.initialize();
 
             //Configurable
-            int totalIteration = 1;
-            int samplePerIter = 80;
-            String header = "Names: ,MO2TOS(k=10), OTVS(p=4)";
+            int totalIteration = 20;
+            int samplePerIter = 65;
+            String header = "Names: ,Prior, Response Surface, MO2TOS(k=10)";
                 //"Names: ,MO2TOS(k=10), MO2TOS(k=20), MO2TOS(k=5), OTVS(p=2), OTVS(p=4), OTVS(p=6)";
             // + "MO2TOS" + "," + "MinSeeker" + "," + "PRIOR";// + "," + results3[i];
-            Dictionary<Algorithm, double[]> algoResult = new Dictionary<Algorithm, double[]>();
-            //algoResult.Add(mo2tos10, new double[samplePerIter]);
-            //algoResult.Add(mo2tos20, new double[samplePerIter]);
-            //algoResult.Add(mo2tos5, new double[samplePerIter]);
-            //algoResult.Add(otvs2, new double[samplePerIter]);
-            //algoResult.Add(otvs4, new double[samplePerIter]);
-            algoResult.Add(otvs6, new double[samplePerIter]);
-            //algoResult.Add(minSeeker, new double[samplePerIter]);
-            //algoResult.Add(prior, new double[samplePerIter]);
-
-
+            Dictionary<AlgorithmMultiF, double[]> algoResult = new Dictionary<AlgorithmMultiF, double[]>();
+            algoResult.Add(gaussian, new double[samplePerIter]);
+            
             //Testing Stage
             for (int i = 0; i < totalIteration; i++)
             {
-                foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
+                foreach (KeyValuePair<AlgorithmMultiF, double[]> entry in algoResult)
                 {
                     entry.Key.resetIteration();
                 }
                 for (int j = 0; j < samplePerIter; j++)
                 {
-                    foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
+                    foreach (KeyValuePair<AlgorithmMultiF, double[]> entry in algoResult)
                     {
                         //*********  SnapShot ************
                         
-                        
+                        /*
                         if(j%10 == 0 && i == 0)
                         {
                             entry.Key.snapShot(fileName + " OTVS", j);
-                        }
+                        }*/
 
-                        // do something with entry.Value or entry.Key
-                        entry.Value[j] += entry.Key.optimum.HFValue;
+                        // Iteration
+                        entry.Value[j] += entry.Key.optimum.y;
                         entry.Key.iterate();
                     }
                 }
             }
-            /*
+            
             using (var sw = new StreamWriter(fileName + ".csv", true)) sw.WriteLine(header);
             for (int i = 0; i < samplePerIter; i++)
             {
                 int iter = i + 1;
                 String newLine = iter.ToString();
-                foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
+                foreach (KeyValuePair<AlgorithmMultiF, double[]> entry in algoResult)
                 {
                     int start = entry.Key.getStartingPoint();
                     if (iter >= start && iter - start < entry.Value.Length && iter <= samplePerIter)
@@ -157,64 +116,72 @@ namespace OT_UI
                     else newLine += ",";
                 }
                 using (var sw = new StreamWriter(fileName + ".csv", true)) sw.WriteLine(newLine);
-            }*/
+            }
         }
-
 
         private static void updateRankPoints()
         {
             //using (var sw = new StreamWriter("Optimal.csv", true)) sw.WriteLine(otvs.Optimum.HFValue);
-            Series otherPoints = graph_rank.Series.Where(x => x.Name == "Ranks").ToList().First();
-            otherPoints.Points.Clear();
-            Series sampled = graph_rank.Series.Where(x => x.Name == "Sampled").ToList().First();
-            sampled.Points.Clear();
-            Series newPoints = graph_rank.Series.Where(x => x.Name == "Filter").ToList().First();
-            newPoints.Points.Clear();
-            Series proba = graph_rank.Series.Where(x => x.Name == "ProbaValue").ToList().First();
-            proba.Points.Clear();
-            Series a = graph_rank.Series.Where(x => x.Name == "a").ToList().First();
-            a.Points.Clear();
-            Series b = graph_rank.Series.Where(x => x.Name == "b").ToList().First();
-            b.Points.Clear();
+            Series otherPoints_left = graph_rank.Series.Where(x => x.Name == "Ranks").ToList().First();
+            otherPoints_left.Points.Clear();
+            Series sampled_left = graph_rank.Series.Where(x => x.Name == "Sampled").ToList().First();
+            sampled_left.Points.Clear();
+            Series newPoints_left = graph_rank.Series.Where(x => x.Name == "Filter").ToList().First();
+            newPoints_left.Points.Clear();
+            Series proba_left = graph_rank.Series.Where(x => x.Name == "ProbaValue").ToList().First();
+            proba_left.Points.Clear();
+            Series upper_left = graph_rank.Series.Where(x => x.Name == "upper").ToList().First();
+            upper_left.Points.Clear();
+            Series lower_left = graph_rank.Series.Where(x => x.Name == "lower").ToList().First();
+            lower_left.Points.Clear();
+            
             Series c = graph_rank.Series.Where(x => x.Name == "c").ToList().First();
             c.Points.Clear();
             foreach (var i in Enumerable.Range(0, algo.solutions.Count))
             {
-                DataPoint dp = new DataPoint(algo.solutions[i].LFRank, algo.solutions[i].HFValue);
-                //DataPoint dp = new DataPoint(algo.solutions[i].LFValue, algo.solutions[i].HFValue);
-                int lf = algo.solutions[i].LFRank;
+                /***** IMPORTANT: Plot by Rank OR Value *****/
+                Double x = algo.solutions[i].idx;
                 //Double lf = algo.solutions[i].LFValue;
 
+
+                DataPoint dp = new DataPoint(x, algo.solutions[i].y);
+                //DataPoint dp = new DataPoint(algo.solutions[i].LFValue, algo.solutions[i].HFValue);
+                
                 //For Proba Lines
                 if (algo.solutions[i].proba > 0)
                 {
-                    DataPoint p = new DataPoint(lf, algo.solutions[i].proba);
-                    proba.Points.Add(p);
+                    DataPoint p = new DataPoint(x, algo.solutions[i].proba);
+                    proba_left.Points.Add(p);
                 }
                 
+                DataPoint upper = new DataPoint(x, algo.solutions[i].upper);
+                upper_left.Points.Add(upper);
+                DataPoint lower = new DataPoint(x, algo.solutions[i].lower);
+                lower_left.Points.Add(lower);
                 //For abc Lines
-                if (Math.Abs(algo.solutions[i].a) > 0.0001)
+                /*
+                if (Math.Abs(algo.solutions[i].b) > 0.0001)
                 {
-                    DataPoint aa = new DataPoint(lf, algo.solutions[i].a);
+                    DataPoint aa = new DataPoint(x, algo.solutions[i].a);
                     a.Points.Add(aa);
-                    DataPoint cc = new DataPoint(lf, algo.solutions[i].c);
+                    DataPoint cc = new DataPoint(x, algo.solutions[i].c);
                     c.Points.Add(cc);
-                    DataPoint bb = new DataPoint(lf, algo.solutions[i].b);
+                    DataPoint bb = new DataPoint(x, algo.solutions[i].b);
                     b.Points.Add(bb);
-                }
-                
+                }*/
+
                 //For Data Points
-                if (algo.lfNewlySampled.Contains(lf))
+                if (algo.lastSample == algo.solutions[i])
                 {
                     dp.MarkerSize = 15;
                     dp.MarkerColor = System.Drawing.Color.Violet;
                     dp.MarkerStyle = MarkerStyle.Diamond;
-                    newPoints.Points.Add(dp);
+                    newPoints_left.Points.Add(dp);
                 }
-                else if(algo.lfSampled.Contains(lf))
-                    sampled.Points.Add(dp);
+                else if(algo.sampled.Contains(algo.solutions[i]))
+                    sampled_left.Points.Add(dp);
                 else
-                    otherPoints.Points.Add(dp);
+                    otherPoints_left.Points.Add(dp);
             }
         }
     }
