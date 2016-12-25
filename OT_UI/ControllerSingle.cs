@@ -10,7 +10,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace OT_UI
 {
-    static class Controller
+    static class ControllerSingle
     {
         public enum sl_Kendall { Min, Avg, Wtd };
         public static sl_Kendall selected_kendall = sl_Kendall.Min;
@@ -43,8 +43,8 @@ namespace OT_UI
             algo.initialize(solutions);*/
 
 
-            var solutions = Utility.example(false);
-            algo = new Equal(10);
+            var solutions = Utility.Xu2014(2);
+            algo = new GaussianSingle();
             algo.initialize(solutions);
 
             updateRankPoints();
@@ -57,29 +57,25 @@ namespace OT_UI
             updateRankPoints();
         }
 
-        public static void evaluatePerformance(IReadOnlyCollection<Solution> sols, string fileName)
+        public static void evaluatePerformance(IReadOnlyCollection<Solution> sols)
         {
             Algorithm gaussian = new GaussianSingle();
             Algorithm mo2tos20 = new MO2TOS(20);
             Algorithm mo2tos10 = new MO2TOS(10);
             Algorithm mo2tos5 = new MO2TOS(5);
-            Algorithm equal = new Equal(10);
             List<Algorithm> algo = new List<Algorithm>();
             //algo.Add(gaussian);
-            /*
             algo.Add(mo2tos5);
             algo.Add(mo2tos10);
-            algo.Add(mo2tos20);*/
-            algo.Add(equal);
-            
-            evaluateAlgorithm(algo, sols, fileName);
+            algo.Add(mo2tos20);
+            evaluateAlgorithm(algo, sols, "TestResult");
         }
 
 
         public static void evaluateAlgorithm(List<Algorithm> algos, IReadOnlyCollection<Solution> sols, string fileName)
         {
             //Configurable
-            int totalIteration = 500;
+            int totalIteration = 1000;
             int samplePerIter = 55;
             String header = "Names: ,";
             //"Names: ,MO2TOS(k=10), MO2TOS(k=20), MO2TOS(k=5), OTVS(p=2), OTVS(p=4), OTVS(p=6)";
@@ -108,7 +104,7 @@ namespace OT_UI
                         /*
                         if(j%10 == 0 && i == 0)
                         {
-                            entry.Key.snapShot(fileName + " " + entry.Key.getName(), j);
+                            entry.Key.snapShot(fileName + " OTVS", j);
                         }*/
 
                         // Iteration

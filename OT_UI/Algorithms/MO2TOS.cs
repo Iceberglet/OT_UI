@@ -133,5 +133,11 @@ namespace OT_UI
         {
             return 2*groupNumber + 1;
         }
+
+
+        public override string getName()
+        {
+            return "MO2TOS(k=" + groupNumber + ")";
+        }
     }
 }

@@ -13,12 +13,13 @@ namespace OT_UI
     class GaussianSingle : Algorithm
     {
         private GP myGP;
+        private static int startSamples = 20;
 
         public override void initialize(List<Solution> solutions)
         {
             base.initialize(solutions);
 
-            var num = 50;
+            var num = startSamples;
 
             for (int i = 0; i < num; i++)
             {
@@ -28,9 +29,8 @@ namespace OT_UI
 
             var initial = solutionsSampled.Select(s => new XYPair(GPUtility.V(s.LFRank), s.HFValue)).ToList();
             var list_x = solutions.Select(s => new LabeledVector(s.LFRank, GPUtility.V(s.LFRank))).ToList();
-            myGP = new GP(initial, list_x, CovFunction.SquaredExponential(new LengthScale(50), new SigmaF(0.6)) + CovFunction.GaussianNoise(new SigmaJ(0.05)),
-                    heteroscedastic: true,
-                    sigma_f: 1
+            myGP = new GP(initial, list_x, CovFunction.SquaredExponential(new LengthScale(250), new SigmaF(100)) + CovFunction.GaussianNoise(new SigmaJ(10)),
+                    heteroscedastic: true, estimateHyperPara: true
                     );
         }
 
@@ -40,12 +40,11 @@ namespace OT_UI
         {
             iter++;
             //For logging purposes
-            var X = new double[solutions.Count];
-            var Y = new double[solutions.Count];
-            var upper = new double[solutions.Count];
-            var lower = new double[solutions.Count];
+            //var X = new double[solutions.Count];
+            //var Y = new double[solutions.Count];
+            //var upper = new double[solutions.Count];
+            //var lower = new double[solutions.Count];
             var probas = new double[solutions.Count];
-
             
             var res = myGP.predict();
             foreach(var kv in res)
@@ -53,17 +52,16 @@ namespace OT_UI
                 Solution s = solutions.Find(x => x.LFRank == kv.Key.idx);   //lf compare
                 double mean = kv.Value.mu;
                 double sd = kv.Value.sd;
-                s.proba = Normal.CDF(mean, sd, optimum.HFValue);
+                s.proba = kv.Value.getExpectedImprovement(optimum.HFValue);
                 //if (sd > 0.01)
                 //    Utility.popup(sd.ToString());
                 s.a = mean + 1.96 * sd;
                 s.b = mean - 1.96 * sd;
 
-
-                X[kv.Key.idx] = kv.Key.idx;
-                Y[kv.Key.idx] = s.HFValue;
-                upper[kv.Key.idx] = s.a;
-                lower[kv.Key.idx] = s.b;
+                //X[kv.Key.idx] = kv.Key.idx;
+                //Y[kv.Key.idx] = s.HFValue;
+                //upper[kv.Key.idx] = s.a;
+                //lower[kv.Key.idx] = s.b;
                 probas[kv.Key.idx] = solutionsSampled.Contains(s) ? 0 : s.proba;
             }
 
@@ -80,6 +78,16 @@ namespace OT_UI
         public override void resetIteration()
         {
             initialize(solutions);
+        }
+
+        public override int getStartingPoint()
+        {
+            return startSamples + 1;
+        }
+
+        public override string getName()
+        {
+            return "Gaussian";
         }
     }
 }

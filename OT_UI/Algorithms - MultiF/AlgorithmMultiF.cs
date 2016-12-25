@@ -49,5 +49,7 @@ namespace OT_UI
         {
             return 1;
         }
+
+        public abstract string getName();
     }
 }

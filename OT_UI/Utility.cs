@@ -19,7 +19,7 @@ namespace OT_UI
             sols.ForEach(s =>
             {
                 SolutionMultiF ss = new SolutionMultiF(s.HFValue, s.HFRank, 2, s.LFRank);
-                ss.lfs[0] = new SolutionSingleF(s.HFValue, s.HFRank, s.LFValue, s.LFRank);
+                ss.lfs[0] = new SolutionSingleF(s.HFValue, s.HFRank, s.LFValue + 2, s.LFRank);
                 res.Add(ss);
             });
 
@@ -27,10 +27,10 @@ namespace OT_UI
             var solsAnother = Xu2014(3);
             solsAnother.ForEach(s =>
             {
-                res.Find(ss => ss.yRank == s.HFRank).lfs[1] = new SolutionSingleF(s.HFValue, s.HFRank, s.LFValue, s.LFRank);
+                res.Find(ss => ss.yRank == s.HFRank).lfs[1] = new SolutionSingleF(s.HFValue, s.HFRank, s.LFValue - 2, s.LFRank);
             });
 
-            var r = res.OrderBy(s => s.yRank).ToList().AsReadOnly();
+            var r = res.OrderBy(s => s.lfs[0].xRank).ToList().AsReadOnly();
             return r;
             //return res.OrderBy(s => s.lfs[0].xRank).ToList();
         }
@@ -50,6 +50,29 @@ namespace OT_UI
         public static void printToFile(string path, double[] probas)
         {
             File.AppendAllText(path, string.Join(",", probas) + '\n');
+        }
+
+        public static List<Solution> example(bool usingOT)
+        {
+            var solutions = new List<Solution>();
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "test.txt");
+            String input_grid = File.ReadAllText(path);
+            var rows = input_grid.Split('\n');
+            foreach (var row in rows)
+            {
+                var line = row.Trim('\r');
+                var arr = line.Split('\t');
+                var x = arr[0];
+                var lf = arr[1];
+                var hf = arr[2];
+                solutions.Add(new Solution
+                {
+                    HFValue = Double.Parse(hf),
+                    LFValue = Double.Parse(usingOT ? lf : x)
+                });
+            }
+
+            return RankAndSort(solutions);
         }
 
 

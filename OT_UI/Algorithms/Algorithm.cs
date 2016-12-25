@@ -57,22 +57,22 @@ namespace OT_UI
 
         public virtual void snapShot(string name, int tryNo)
         {
-            String header = "Legend:, Probability, Unsampled, Sampled, Last Sample";
+            String header = "Legend:, Lower, Higher, Probability, Unsampled, Sampled, Last Sample";
             using (var sw = new StreamWriter("SnapChat" + name + "_try_" + tryNo + ".csv", true)) sw.WriteLine(header);
             foreach (Solution s in solutions)
             {
-                string newLine = s.LFRank + "," + (s.proba > 0 ? s.proba.ToString() : "") + "," ;
+                string newLine = s.LFRank + "," + s.a + "," + s.b + "," + (s.proba > 0 ? s.proba.ToString() : "") + "," ;
                 //Datapoint, Sampled, LastSampled
                 if (s == lastSampled)
                 {
-                    newLine += ",," + s.HFRank;
+                    newLine += ",," + s.HFValue;
                 }
                 else if (solutionsSampled.Contains(s))
                 {
-                    newLine += "," + s.HFRank;
+                    newLine += "," + s.HFValue;
                 } else
                 {
-                    newLine += s.HFRank;
+                    newLine += s.HFValue;
                 }
                 using (var sw = new StreamWriter("SnapChat" + name + "_try_" + tryNo + ".csv", true)) sw.WriteLine(newLine);
             }
@@ -81,6 +81,11 @@ namespace OT_UI
         public virtual int getStartingPoint()
         {
             return 1;
+        }
+
+        public virtual string getName()
+        {
+            return "ForgotToName";
         }
         
     }

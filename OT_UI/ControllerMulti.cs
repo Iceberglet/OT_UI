@@ -10,7 +10,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace OT_UI
 {
-    static class Controller
+    static class ControllerMulti
     {
         public enum sl_Kendall { Min, Avg, Wtd };
         public static sl_Kendall selected_kendall = sl_Kendall.Min;
@@ -25,7 +25,7 @@ namespace OT_UI
         //private static Thread iterator;
         private static Chart graph_rank;
         private static Chart graph_avg;
-        private static Algorithm algo; // = new Gaussian();
+        private static AlgorithmMultiF algo; // = new Gaussian();
 
         //Called when initialize is clicked
 
@@ -43,9 +43,9 @@ namespace OT_UI
             algo.initialize(solutions);*/
 
 
-            var solutions = Utility.example(false);
-            algo = new Equal(10);
-            algo.initialize(solutions);
+            var solutions = Utility.Xu2014MultiF();
+            algo = new Gaussian2(solutions);
+            algo.initialize();
 
             updateRankPoints();
         }
@@ -57,37 +57,27 @@ namespace OT_UI
             updateRankPoints();
         }
 
-        public static void evaluatePerformance(IReadOnlyCollection<Solution> sols, string fileName)
+        public static void evaluatePerformance(IReadOnlyCollection<SolutionMultiF> sols)
         {
-            Algorithm gaussian = new GaussianSingle();
-            Algorithm mo2tos20 = new MO2TOS(20);
-            Algorithm mo2tos10 = new MO2TOS(10);
-            Algorithm mo2tos5 = new MO2TOS(5);
-            Algorithm equal = new Equal(10);
-            List<Algorithm> algo = new List<Algorithm>();
-            //algo.Add(gaussian);
-            /*
-            algo.Add(mo2tos5);
-            algo.Add(mo2tos10);
-            algo.Add(mo2tos20);*/
-            algo.Add(equal);
-            
-            evaluateAlgorithm(algo, sols, fileName);
+            AlgorithmMultiF gaussian = new Gaussian2(sols);
+            List<AlgorithmMultiF> algo = new List<AlgorithmMultiF>();
+            algo.Add(gaussian);
+            evaluateFunction(algo, sols, "TestResult");
         }
 
 
-        public static void evaluateAlgorithm(List<Algorithm> algos, IReadOnlyCollection<Solution> sols, string fileName)
+        public static void evaluateFunction(List<AlgorithmMultiF> algos, IReadOnlyCollection<SolutionMultiF> sols, String fileName)
         {
             //Configurable
-            int totalIteration = 500;
-            int samplePerIter = 55;
+            int totalIteration = 200;
+            int samplePerIter = 50;
             String header = "Names: ,";
             //"Names: ,MO2TOS(k=10), MO2TOS(k=20), MO2TOS(k=5), OTVS(p=2), OTVS(p=4), OTVS(p=6)";
             // + "MO2TOS" + "," + "MinSeeker" + "," + "PRIOR";// + "," + results3[i];
-            Dictionary<Algorithm, double[]> algoResult = new Dictionary<Algorithm, double[]>();
-            foreach (Algorithm algo in algos)
+            Dictionary<AlgorithmMultiF, double[]> algoResult = new Dictionary<AlgorithmMultiF, double[]>();
+            foreach (AlgorithmMultiF algo in algos)
             {
-                algo.initialize(sols.ToList());
+                //algo.initialize();
                 algoResult.Add(algo, new double[samplePerIter]);
                 header += algo.getName() + ",";
             }
@@ -95,24 +85,24 @@ namespace OT_UI
             //Testing Stage
             for (int i = 0; i < totalIteration; i++)
             {
-                foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
+                foreach (KeyValuePair<AlgorithmMultiF, double[]> entry in algoResult)
                 {
                     entry.Key.resetIteration();
                 }
                 for (int j = 0; j < samplePerIter; j++)
                 {
-                    foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
+                    foreach (KeyValuePair<AlgorithmMultiF, double[]> entry in algoResult)
                     {
                         //*********  SnapShot ************
 
                         /*
                         if(j%10 == 0 && i == 0)
                         {
-                            entry.Key.snapShot(fileName + " " + entry.Key.getName(), j);
+                            entry.Key.snapShot(fileName + " OTVS", j);
                         }*/
 
                         // Iteration
-                        entry.Value[j] += entry.Key.optimum.HFValue;
+                        entry.Value[j] += entry.Key.optimum.y;
                         entry.Key.iterate();
                     }
                 }
@@ -123,7 +113,7 @@ namespace OT_UI
             {
                 int iter = i + 1;
                 String newLine = iter.ToString();
-                foreach (KeyValuePair<Algorithm, double[]> entry in algoResult)
+                foreach (KeyValuePair<AlgorithmMultiF, double[]> entry in algoResult)
                 {
                     int start = entry.Key.getStartingPoint();
                     if (iter >= start && iter - start < entry.Value.Length) // && iter <= samplePerIter)
@@ -155,12 +145,12 @@ namespace OT_UI
             foreach (var i in Enumerable.Range(0, algo.solutions.Count))
             {
                 /***** IMPORTANT: Plot by Rank OR Value *****/
-                Solution s = algo.solutions.ElementAt(i);
-                Double x = s.LFRank;
+                SolutionMultiF s = algo.solutions.ElementAt(i);
+                Double x = s.lfs[1].xRank;
                 //Double lf = algo.solutions[i].LFValue;
 
 
-                DataPoint dp = new DataPoint(x, s.HFValue);
+                DataPoint dp = new DataPoint(x, s.y);
                 //DataPoint dp = new DataPoint(algo.solutions[i].LFValue, algo.solutions[i].HFValue);
 
                 //For Proba Lines
@@ -170,9 +160,9 @@ namespace OT_UI
                     proba_left.Points.Add(p);
                 }
 
-                DataPoint upper = new DataPoint(x, s.a);
+                DataPoint upper = new DataPoint(x, s.upper);
                 upper_left.Points.Add(upper);
-                DataPoint lower = new DataPoint(x, s.b);
+                DataPoint lower = new DataPoint(x, s.lower);
                 lower_left.Points.Add(lower);
                 //For abc Lines
                 /*
@@ -187,14 +177,14 @@ namespace OT_UI
                 }*/
 
                 //For Data Points
-                if (algo.lastSampled == s)
+                if (algo.lastSample == s)
                 {
                     dp.MarkerSize = 15;
                     dp.MarkerColor = System.Drawing.Color.Violet;
                     dp.MarkerStyle = MarkerStyle.Diamond;
                     newPoints_left.Points.Add(dp);
                 }
-                else if (algo.solutionsSampled.Contains(s))
+                else if (algo.sampled.Contains(s))
                     sampled_left.Points.Add(dp);
                 else
                     otherPoints_left.Points.Add(dp);
