@@ -12,6 +12,67 @@ namespace OT_UI
     {
         private static readonly Random rand = new Random();
 
+        public static List<Solution> HighDimensional()
+        {
+            List<Solution> res = new List<Solution>();
+
+            Func<int, int, double> f = (idx, xi) =>
+            {
+                idx += 1;
+                if (xi == 0)
+                    return 1.0 / 2 - 1.0 / idx;
+                if (xi == 1)
+                    return 1.0 / 3 + 1.5 / idx;
+                throw new Exception("Invalid xi: " + xi);
+            };
+
+            Func<int[], double> HF = (x) =>
+            {
+                double result = 0;
+                for(int i = 0; i < x.Length; i++)
+                {
+                    double incre = 1;
+                    for(int j = 0; j < x.Length; j++)
+                    {
+                        incre *= ( j == i ? f(j, x[j]) : 1 - f(j, x[j]) );
+                    }
+                    result += incre;
+                }
+                return result;
+            };
+
+            Func<int[], double> LF = (x) =>
+            {
+                double result = 0;
+                for (int i = 0; i < x.Length; i++)
+                {
+                    result += f(i, x[i]);
+                }
+                return result;
+            };
+
+
+            for (int i = 0; i < 1024; i++)
+            {
+                string binary = Convert.ToString(i, 2).PadLeft(10, '0');
+                char[] chars = binary.ToArray();
+                int[] x = new int[10];
+                for(int j = chars.Length - 1; j > chars.Length - 11; j--)
+                {
+                    int idx = chars.Length - j - 1;
+                    x[idx] = chars[j] - '0';
+                }
+                double hf = HF(x);
+                double lf = LF(x);
+                res.Add(new Solution()
+                {
+                    HFValue = hf,
+                    LFValue = lf
+                });
+            }
+            return RankAndSort(res);
+        }
+
         public static IReadOnlyCollection<SolutionMultiF> Xu2014MultiF()   //Uses G2 and G3
         {
             List<SolutionMultiF> res = new List<SolutionMultiF>();
@@ -231,11 +292,6 @@ namespace OT_UI
             return RankAndSort(solutions);
         }
 
-        public static List<Solution> Griewank()
-        {
-            return null;
-        }
-
         public static List<Solution> RankAndSort(List<Solution> solutions)
         {
             int rank;
@@ -304,6 +360,17 @@ namespace OT_UI
             if(!normalize)
                 return (double)numer;
             else return 1.0 * numer / lfOrder.Count / (lfOrder.Count - 1) * 2;
+        }
+
+        public static void exportSolutionsToExcel(List<Solution> sols, string name)
+        {
+            sols = sols.OrderBy(s => s.LFRank).ToList();
+            foreach(Solution s in sols)
+            {
+                string line = s.LFRank + "," + s.LFValue + "," + s.HFRank + "," + s.HFValue;
+
+                using (var sw = new StreamWriter(name + ".csv", true)) sw.WriteLine(line);
+            }
         }
 
         public static void exportExcel(List<Solution> sols, string name)

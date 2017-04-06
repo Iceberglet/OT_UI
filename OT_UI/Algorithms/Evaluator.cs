@@ -20,7 +20,6 @@ namespace OT_UI
             algorithms.Add(new MO2TOS_2(10, MO2TOS.SamplingScheme.Hybrid));
 
             tests.Add(Utility.GramacyLee());
-            tests.Add(Utility.Griewank());
             tests.Add(Utility.Rastrigin());
             tests.Add(Utility.Schwefel());
             tests.Add(Utility.SixHumpCamel());

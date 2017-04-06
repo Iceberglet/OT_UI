@@ -57,25 +57,25 @@ namespace OT_UI
             updateRankPoints();
         }
 
-        public static void evaluatePerformance(IReadOnlyCollection<Solution> sols)
+        public static void evaluatePerformance(IReadOnlyCollection<Solution> sols, string name)
         {
             Algorithm gaussian = new GaussianSingle();
             Algorithm mo2tos20 = new MO2TOS(20);
             Algorithm mo2tos10 = new MO2TOS(10);
             Algorithm mo2tos5 = new MO2TOS(5);
             List<Algorithm> algo = new List<Algorithm>();
-            //algo.Add(gaussian);
+            algo.Add(gaussian);/*
             algo.Add(mo2tos5);
             algo.Add(mo2tos10);
-            algo.Add(mo2tos20);
-            evaluateAlgorithm(algo, sols, "TestResult");
+            algo.Add(mo2tos20);*/
+            evaluateAlgorithm(algo, sols, name);
         }
 
 
         public static void evaluateAlgorithm(List<Algorithm> algos, IReadOnlyCollection<Solution> sols, string fileName)
         {
             //Configurable
-            int totalIteration = 1000;
+            int totalIteration = 1;
             int samplePerIter = 55;
             String header = "Names: ,";
             //"Names: ,MO2TOS(k=10), MO2TOS(k=20), MO2TOS(k=5), OTVS(p=2), OTVS(p=4), OTVS(p=6)";
@@ -101,17 +101,18 @@ namespace OT_UI
                     {
                         //*********  SnapShot ************
 
-                        /*
-                        if(j%10 == 0 && i == 0)
+
+                        if (j % 10 == 0 && i == 0)
                         {
                             entry.Key.snapShot(fileName + " OTVS", j);
-                        }*/
+                        }
 
                         // Iteration
                         entry.Value[j] += entry.Key.optimum.HFValue;
                         entry.Key.iterate();
                     }
                 }
+                GC.Collect();
             }
 
             using (var sw = new StreamWriter(fileName + ".csv", true)) sw.WriteLine(header);
