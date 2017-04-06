@@ -50,7 +50,8 @@ namespace OT_UI
                 sample(s);
                 for (int lf = 0; lf < fidelities; lf++)
                 {
-                    initialSamples[lf].Add(new XYPair(GPUtility.V(s.lfs[lf].xRank), s.y));  //high fidelity against THIS low fidelity
+                    //Regress on bias
+                    initialSamples[lf].Add(new XYPair(GPUtility.V(s.lfs[lf].xRank), s.y - s.lfs[lf].x));  //high fidelity against THIS low fidelity
                 }
             }
 
@@ -59,17 +60,17 @@ namespace OT_UI
                 //Generate the fidelity rankings for each fidelity
                 for (int lf = 0; lf < fidelities; lf++)
                 {
-                    list_x[lf].Add(new LabeledVector(s.yRank, GPUtility.V(s.lfs[lf].xRank)));
+                    list_x[lf].Add(new LabeledVector(s.lfs[lf].xRank, GPUtility.V(s.lfs[lf].xRank)));
                 }
             });
-            
-            foreach (var i in Enumerable.Range(0, fidelities))
+
+            for (int lf = 0; lf < fidelities; lf++)
             {
-                GP anotherGP = new GP(initialSamples[i], list_x[i], 
+                GP anotherGP = new GP(initialSamples[lf], list_x[lf], 
                     CovFunction.SquaredExponential(new LengthScale(240), new SigmaF(0.3)) + CovFunction.GaussianNoise(new SigmaJ(0.05)),
                     heteroscedastic: true, estimateHyperPara: true
                     );
-                gps[i] = anotherGP;
+                gps[lf] = anotherGP;
             }
         }
 
@@ -88,26 +89,31 @@ namespace OT_UI
                 var res = gps[i].predict();
                 foreach(var kv in res)
                 {
-                    //kv.Key.idx is the true rank
+                    //kv.Key.idx is the LF0 rank
                     predictions[i, kv.Key.idx] = kv.Value;
                 }
             }
             for(int i = 0; i < solutions.Count; i++)
             {
-                SolutionMultiF s = solutions.ElementAt(i);
+                //SOlution is ordered by first LF Ranking
+                SolutionMultiF s = solutions.ElementAt(i);//solutions.Where(so=>so.idx == i).First();
+
                 NormalDistribution[] priors = new NormalDistribution[gps.Length];
                 for(int k = 0; k < priors.Length; k++)
                 {
-                    priors[k] = predictions[k, i];
+                    NormalDistribution biasN = predictions[k, i];
+                    priors[k] = new NormalDistribution(biasN.mu + s.lfs[k].x, biasN.sd);//restore from bias
                 }
 
                 //double EI = NormalDistribution.GetExpectedImprovement(optimum.y, priors[0], priors[1]);
-                double EI = (priors[0] * priors[1]).getExpectedImprovement(optimum.y);
-                posteriorProbas[i] = EI;
+                NormalDistribution combined = (priors[0] * priors[1]);
+                posteriorProbas[i] = combined.getExpectedImprovement(optimum.y);
 
-                solutions.ElementAt(i).proba = posteriorProbas[i];
+                s.proba = posteriorProbas[i];//posteriorProbas[i];
+                s.upper = priors[0].mu + 1.96 * priors[0].sd;
+                s.lower = priors[0].mu - 1.96 * priors[0].sd;
                 //Proba need to be zero if already sampled
-                if (sampled.Contains(solutions.ElementAt(i)))
+                if (sampled.Contains(s))
                 {
                     posteriorProbas[i] = 0;
                 }

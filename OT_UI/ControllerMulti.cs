@@ -106,6 +106,7 @@ namespace OT_UI
                         entry.Key.iterate();
                     }
                 }
+                GC.Collect();
             }
 
             using (var sw = new StreamWriter(fileName + ".csv", true)) sw.WriteLine(header);
@@ -146,7 +147,7 @@ namespace OT_UI
             {
                 /***** IMPORTANT: Plot by Rank OR Value *****/
                 SolutionMultiF s = algo.solutions.ElementAt(i);
-                Double x = s.lfs[1].xRank;
+                Double x = s.lfs[0].xRank;
                 //Double lf = algo.solutions[i].LFValue;
 
 

@@ -17,15 +17,26 @@ namespace OT_UI
         [STAThread]
         static void Main()
         {
-            /*
+            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-            */
+            
 
             //Controller.evaluatePerformance(Utility.Xu2014MultiF());
-            //Controller.evaluatePerformance(Utility.Xu2014(1), "TestResult_G2_GPR");
-            Controller.evaluatePerformance(Utility.example(false), "TestResult_NO_OT_EQUAL");
+            //Controller.evaluatePerformance(Utility.Xu2014(3), "TestResult_G3_GPR");
+            //Controller.evaluatePerformance(Utility.example(false), "TestResult_NO_OT_EQUAL");
+
+
+
+
+
+
+
+
+
+
+            //Utility.exportSolutionsToExcel(Utility.HighDimensional(), "High Dimensional");
             /*
             for(int i = 0; i < 5; i++)
             {

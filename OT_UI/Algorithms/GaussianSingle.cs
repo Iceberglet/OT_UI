@@ -26,8 +26,8 @@ namespace OT_UI
                 var idx = solutions.Count / num * i + rand.Next(0, solutions.Count / num);
                 sample(solutions.ElementAt(idx));
             }
-
-            var initial = solutionsSampled.Select(s => new XYPair(GPUtility.V(s.LFRank), s.HFValue)).ToList();
+            //GP on bias: f-g
+            var initial = solutionsSampled.Select(s => new XYPair(GPUtility.V(s.LFRank), s.HFValue - s.LFValue)).ToList();
             var list_x = solutions.Select(s => new LabeledVector(s.LFRank, GPUtility.V(s.LFRank))).ToList();
             myGP = new GP(initial, list_x, CovFunction.SquaredExponential(new LengthScale(250), new SigmaF(100)) + CovFunction.GaussianNoise(new SigmaJ(10)),
                     heteroscedastic: true, estimateHyperPara: true
@@ -50,9 +50,10 @@ namespace OT_UI
             foreach(var kv in res)
             {
                 Solution s = solutions.Find(x => x.LFRank == kv.Key.idx);   //lf compare
-                double mean = kv.Value.mu;
+                double mean = kv.Value.mu + s.LFValue;
                 double sd = kv.Value.sd;
-                s.proba = kv.Value.getExpectedImprovement(optimum.HFValue);
+                var posterior = new NormalDistribution(mean, sd);
+                s.proba = posterior.getExpectedImprovement(optimum.HFValue);
                 //if (sd > 0.01)
                 //    Utility.popup(sd.ToString());
                 s.a = mean + 1.96 * sd;
@@ -67,7 +68,7 @@ namespace OT_UI
 
             var next = solutions[Utility.SampleAmong(probas)];
             sample(next);
-            myGP.addPoint(new XYPair(GPUtility.V(next.LFRank), next.HFValue));
+            myGP.addPoint(new XYPair(GPUtility.V(next.LFRank), next.HFValue - next.LFValue));
 
             //Logging
             //Utility.exportExcel<double>("Gaussian" + iter + ".csv", X.ToList(), Y.ToList(), lower.ToList(), upper.ToList(), probas.ToList());
