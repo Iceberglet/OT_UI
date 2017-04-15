@@ -19,23 +19,19 @@ namespace OT_UI
         public enum sl_Strategy { Det1, Det2, Tour, Kernel };
         public static sl_Strategy selected_strategy = sl_Strategy.Det1;
 
-        public static int speed; //0-paused, 1-sample, 2-iteration, 3-grand_average
-
         private static Form1 f;
         //private static Thread iterator;
         private static Chart graph_rank;
-        private static Chart graph_avg;
         private static Algorithm algo; // = new Gaussian();
 
         //Called when initialize is clicked
 
-        public static void Initialize(Form1 form, Chart graph_r, Chart graph_a)
+        public static void Initialize(Form1 form, Chart graph_r)
         {
             f = form;
 
             //set up rank graph
             graph_rank = graph_r;
-            graph_avg = graph_a;
 
             /*
             var solutions = Utility.Xu2014(g : 2);

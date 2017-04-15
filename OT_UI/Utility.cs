@@ -377,9 +377,6 @@ namespace OT_UI
         {
             Random r = new Random();
             sols = sols.OrderBy(s => s.LFRank).ToList();
-            Solution sol1 = null, sol2 = null;
-            string previousLine = "";
-            int good = 0, bad = 0;
             foreach(Solution sol in sols)
             {
                 List<int> left = sols.Where(s => s.LFRank <= sol.LFRank).Select(s => s.HFRank).ToList();

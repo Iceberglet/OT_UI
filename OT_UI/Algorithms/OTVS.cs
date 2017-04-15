@@ -50,7 +50,6 @@ namespace OT_UI
             var partial = solutionsSampled.OrderBy(i => i.HFValue).Select(s => s.LFRank).ToList();
             LeftTaus = new Dictionary<int, double>();
             RightTaus = new Dictionary<int, double>();
-            var maxTau = double.NegativeInfinity;
 
             Func<int, double> twoSideKendallRank = i =>
             {

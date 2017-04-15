@@ -24,18 +24,16 @@ namespace OT_UI
         private static Form1 f;
         //private static Thread iterator;
         private static Chart graph_rank;
-        private static Chart graph_avg;
         private static AlgorithmMultiF algo; // = new Gaussian();
 
         //Called when initialize is clicked
 
-        public static void Initialize(Form1 form, Chart graph_r, Chart graph_a)
+        public static void Initialize(Form1 form, Chart graph_r)
         {
             f = form;
 
             //set up rank graph
             graph_rank = graph_r;
-            graph_avg = graph_a;
 
             /*
             var solutions = Utility.Xu2014(g : 2);

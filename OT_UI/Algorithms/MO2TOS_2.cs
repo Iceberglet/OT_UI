@@ -13,7 +13,7 @@ namespace OT_UI
         {
         }
 
-        protected new double[] OCBARatios
+        protected double[] OCBARatios
         {
             get
             {

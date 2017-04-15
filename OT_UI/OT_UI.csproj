@@ -69,10 +69,6 @@
     <Compile Include="Algorithms\Evaluator.cs" />
     <Compile Include="Algorithms\GaussianSingle.cs" />
     <Compile Include="Algorithms\OTVS.cs" />
-    <Compile Include="Algorithms\Kernel.cs" />
-    <Compile Include="Algorithms\Prior - ResponseSurface.cs" />
-    <Compile Include="Algorithms\Prior.cs" />
-    <Compile Include="Algorithms\MinSeeker.cs" />
     <Compile Include="Algorithms\MO2TOS.cs" />
     <Compile Include="Algorithms\MO2TOS_2.cs" />
     <Compile Include="ControllerMulti.cs" />
@@ -84,7 +80,6 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="Perturber\Perturber.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
