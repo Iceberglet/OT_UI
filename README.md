@@ -14,7 +14,9 @@ Usage
    The UI consists only "initialize" and "start(play)" buttons. I have removed all other unused functionalities.
 
    Initialize will, as the name suggests, initialize the sampling algorithm. This is done in `Controller.initialize()`  
+
    Iterate your algorithm. This is done in `Controller.iterate()`  
+   
    (The initialize takes around twenty seconds for this latest commit. Please be patient)
 
 2. Not using the UI.
